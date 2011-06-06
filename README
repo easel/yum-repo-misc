@@ -1,0 +1,16 @@
+This is a repository of yum packages whose sources can be found on github.
+
+Supported Operating Systems:
+	RHEL5 / CentOS5 with EPEL
+
+Included packages:
+	nginx-1.0-2	https://github.com/easel/nginx-centos-rpm
+
+To use this, add the following to /etc/yum.repos.d/easel-epel.repo:
+
+	[yum-repo-misc]
+	name=easel epel misc yum repository
+	baseurl=http://github.com/easel/yum-repo-misc/
+	#gpgkey=http://github.com/easel/yum-repo-misc/GPG-KEY-EASEL-EPEL.key
+	enabled=true
+
