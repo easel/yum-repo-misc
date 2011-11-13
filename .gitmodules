@@ -1,6 +1,0 @@
-[submodule "src/nginx"]
-	path = src/nginx
-	url = git@github.com:easel/nginx-centos-rpm.git
-[submodule "src/python27"]
-	path = src/python27
-	url = git@github.com:WiserTogether/python27.git
