@@ -1,3 +1,4 @@
+#!/bin/bash
 DISTROS=epel/5
 ARCHES=SRPMS x86_64 i386
 
