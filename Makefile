@@ -8,6 +8,6 @@ default: createrepo
 createrepo:
 	for distro in $(DISTROS); do \
 		for arch in $(ARCHES); do \
-			pushd . && cd $$distro/$$arch && createrepo . && popd; \
+			pushd . && cd $$distro/$$arch && createrepo -s sha . && popd; \
 		done; \
 	done
