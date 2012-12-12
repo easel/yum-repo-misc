@@ -1,3 +1,0 @@
-[submodule "build/veewee-boxen"]
-	path = build/veewee-boxen
-	url = git@github.com:easel/veewee-boxen.git
