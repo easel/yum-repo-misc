@@ -1,28 +1,42 @@
 #!/bin/bash
-DISTROS=epel/5
+DISTROS=/vagrant/epel/5
 ARCHES=SRPMS x86_64 i386
 
 default: default
 
 .PHONY: default
-default: use-gh-pages move createrepo use-master
+default: 
+	echo "pick a target"
+
+.PHONY: move 
+move: move checkin use-master
+
+.PHONY: build
+build: createrepo checkin use-master
+
 
 .PHONY: use-gh-pages
 use-gh-pages:
 	git checkout gh-pages
 
 .PHONY: move
-move:
+move: use-gh-pages
 	mv build/RPMS/*el5*x86_64.rpm epel/5/x86_64/
 	mv build/RPMS/*el5*src.rpm epel/5/SRPMS/
 
 .PHONY: createrepo
-createrepo:
+createrepo: use-gh-pages
 	for distro in $(DISTROS); do \
 		for arch in $(ARCHES); do \
-			pushd . && cd $$distro/$$arch && createrepo -s sha . && popd; \
+			vagrant ssh --command "cd $$distro/$$arch && createrepo -s sha ."; \
 		done; \
 	done
+
+.PHONY: checkin
+cheeckin:
+	git add -u epel
+	git add epel
+	git commit -m 'updating repository versions'
 
 .PHONY: use-master
 use-master:
