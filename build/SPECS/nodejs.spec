@@ -8,7 +8,7 @@ Group: Development/Languages
 BuildRequires: python26
 URL: http://nodejs.org/
 Source0: http://nodejs.org/dist/v%{version}/node-v%{version}.tar.gz
-Obsoletes: nodejs nodejs-devel nodejs-waf nodejs-compat-symlinks 
+Obsoletes: nodejs nodejs-devel nodejs-waf nodejs-compat-symlinks npm
 Obsoletes: nodejs-inherits nodejs-fstream nodejs-lru-cache nodejs-nopt nodejs-glob 
 Obsoletes: nodejs-chownr nodejs-ansi nodejs-fast-list 
 Obsoletes: nodejs-rimraf nodejs-mkdirp nodejs-block-stream nodejs-which nodejs-minimatch nodejs-abbrev 
