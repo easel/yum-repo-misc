@@ -8,7 +8,13 @@ Group: Development/Languages
 BuildRequires: python26
 URL: http://nodejs.org/
 Source0: http://nodejs.org/dist/v%{version}/node-v%{version}.tar.gz
-Obsoletes: nodejs-*
+Obsoletes: nodejs nodejs-devel nodejs-waf nodejs-compat-symlinks 
+Obsoletes: nodejs-inherits nodejs-fstream nodejs-lru-cache nodejs-nopt nodejs-glob 
+Obsoletes: nodejs-chownr nodejs-ansi nodejs-fast-list 
+Obsoletes: nodejs-rimraf nodejs-mkdirp nodejs-block-stream nodejs-which nodejs-minimatch nodejs-abbrev 
+Obsoletes: nodejs-semver nodejs-fstream-npm nodejs-graceful-fs nodejs-tar nodejs-request nodejs-fstream-ignore 
+Obsoletes: nodejs-uid-number nodejs-ini nodejs-archy nodejs-proto-list nodejs-read nodejs-node-uuid 
+Obsoletes: nodejs-slide-flow-control
 
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
