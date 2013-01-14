@@ -3,7 +3,20 @@
 #OPTIONS=-r epel-5-x86_64 --no-cleanup-after --offline --verbose
 OPTIONS=-r epel-5-x86_64 --verbose
 ROOT=/home/vagrant/build
+PHANTOMJS_VER=1.8.1-1
 
+.PHONY: nodejs
 nodejs:	
 	mock $(OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/nodejs.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
 	mock $(OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/nodejs-0.8.15-1.el5.centos.src.rpm
+
+.PHONY: phantomjs
+phantomjs: $(ROOT)/RPMS/phantomjs-$(PHANTOMJS_VER).el5.centos.x86_64.rpm
+
+$(ROOT)/SRPMS/phantomjs-$(PHANTOMJS_VER).el5.centos.src.rpm: $(ROOT)/SPECS/phantomjs.spec
+	mock $(OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/phantomjs.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+
+$(ROOT)/RPMS/phantomjs-$(PHANTOMJS_VER).el5.centos.x86_64.rpm: $(ROOT)/SRPMS/phantomjs-$(PHANTOMJS_VER).el5.centos.src.rpm
+	mock $(OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/phantomjs-1.8.1-1.el5.centos.src.rpm
+
+
