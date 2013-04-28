@@ -1,0 +1,536 @@
+diff -up ecryptfs-utils-103/src/key_mod/ecryptfs_key_mod_pkcs11_helper.c.werror ecryptfs-utils-103/src/key_mod/ecryptfs_key_mod_pkcs11_helper.c
+--- ecryptfs-utils-103/src/key_mod/ecryptfs_key_mod_pkcs11_helper.c.werror	2013-01-28 17:34:48.159138688 +0100
++++ ecryptfs-utils-103/src/key_mod/ecryptfs_key_mod_pkcs11_helper.c	2013-01-28 17:34:48.173138799 +0100
+@@ -99,7 +99,7 @@ static int ecryptfs_pkcs11h_deserialize(
+ 		pkcs11h_data->serialized_id = NULL;
+ 	}
+ 	else {
+-		pkcs11h_data->serialized_id = blob + i;
++		pkcs11h_data->serialized_id = (char *)blob + i;
+ 		i += serialized_id_length;
+ 	}
+ 	pkcs11h_data->certificate_blob_size = blob[i++] % 256;
+@@ -117,12 +117,11 @@ static int ecryptfs_pkcs11h_deserialize(
+ 		pkcs11h_data->passphrase = NULL;
+ 	}
+ 	else {
+-		pkcs11h_data->passphrase = blob + i;
++		pkcs11h_data->passphrase = (char *)blob + i;
+ 		i += passphrase_length;
+ 	}
+ 
+ 	rc = 0;
+-out:
+ 	return rc;
+ }
+ 
+@@ -359,14 +358,14 @@ static int ecryptfs_pkcs11h_get_key_sig(
+ 	data[i++] = '\02';
+ 	data[i++] = (char)(nbits >> 8);
+ 	data[i++] = (char)nbits;
+-	BN_bn2bin(rsa->n, &(data[i]));
++	BN_bn2bin(rsa->n, (unsigned char *)&(data[i]));
+ 	i += nbytes;
+ 	data[i++] = (char)(ebits >> 8);
+ 	data[i++] = (char)ebits;
+-	BN_bn2bin(rsa->e, &(data[i]));
++	BN_bn2bin(rsa->e, (unsigned char *)&(data[i]));
+ 	i += ebytes;
+-	SHA1(data, len + 3, hash);
+-	to_hex(sig, hash, ECRYPTFS_SIG_SIZE);
++	SHA1((unsigned char *)data, len + 3, (unsigned char *)hash);
++	to_hex((char *)sig, hash, ECRYPTFS_SIG_SIZE);
+ 	sig[ECRYPTFS_SIG_SIZE_HEX] = '\0';
+ 
+ 	rc = 0;
+@@ -424,8 +423,8 @@ static int ecryptfs_pkcs11h_encrypt(char
+ 		if (
+ 			(rc = RSA_public_encrypt(
+ 				from_size,
+-				from,
+-				to,
++				(unsigned char *)from,
++				(unsigned char *)to,
+ 				rsa,
+ 				RSA_PKCS1_PADDING
+ 			)) == -1
+@@ -519,9 +518,9 @@ static int ecryptfs_pkcs11h_decrypt(char
+ 		(rv = pkcs11h_certificate_decryptAny (
+ 			certificate,
+ 			CKM_RSA_PKCS,
+-			from,
++			(unsigned char *)from,
+ 			from_size,
+-			to,
++			(unsigned char *)to,
+ 			to_size
+ 		)) != CKR_OK
+ 	) {
+@@ -547,9 +546,9 @@ static int ecryptfs_pkcs11h_decrypt(char
+ 		pkcs11h_certificate_decryptAny (
+ 			certificate,
+ 			CKM_RSA_PKCS,
+-			from,
++			(unsigned char *)from,
+ 			from_size,
+-			tmp,
++			(unsigned char *)tmp,
+ 			to_size
+ 		);
+ 
+@@ -864,7 +863,7 @@ static int ecryptfs_pkcs11h_process_key(
+ 		rc = MOUNT_ERROR;
+ 		goto out;
+ 	}
+-	if ((rc = ecryptfs_pkcs11h_serialize(subgraph_key_ctx->key_mod->blob,
++	if ((rc = ecryptfs_pkcs11h_serialize((unsigned char *)subgraph_key_ctx->key_mod->blob,
+ 					     &subgraph_key_ctx->key_mod->blob_size, 
+ 					     pkcs11h_data))) {
+ 		syslog(LOG_ERR, "PKCS#11: Error serializing pkcs11; rc=[%d]\n", rc);
+@@ -943,7 +942,7 @@ static int tf_pkcs11h_global_loglevel(st
+ 
+ 	rc = DEFAULT_TOK;
+ 	node->val = NULL;
+-out:
++// out:
+ 	return rc;
+ }
+ 
+@@ -956,7 +955,7 @@ static int tf_pkcs11h_global_pincache(st
+ 
+ 	rc = DEFAULT_TOK;
+ 	node->val = NULL;
+-out:
++// out:
+ 	return rc;
+ }
+ 
+@@ -1026,7 +1025,7 @@ static int tf_pkcs11h_provider_prot_auth
+ 	sscanf (node->val, "%x", &subgraph_provider_ctx->allow_protected_authentication);
+ 	rc = DEFAULT_TOK;
+ 	node->val = NULL;
+-out:
++
+ 	return rc;
+ }
+ 
+@@ -1040,7 +1039,7 @@ static int tf_pkcs11h_provider_cert_priv
+ 	sscanf (node->val, "%x", &subgraph_provider_ctx->certificate_is_private);
+ 	rc = DEFAULT_TOK;
+ 	node->val = NULL;
+-out:
++
+ 	return rc;
+ }
+ 
+@@ -1055,7 +1054,7 @@ static int tf_pkcs11h_provider_private_m
+ 
+ 	rc = DEFAULT_TOK;
+ 	node->val = NULL;
+-out:
++
+ 	return rc;
+ }
+ 
+@@ -1086,7 +1085,7 @@ static int tf_pkcs11h_provider_end(struc
+ 	free(subgraph_provider_ctx);
+ 	*foo = NULL;
+ 	rc = DEFAULT_TOK;
+-out:
++
+ 	return rc;
+ }
+ 
+@@ -1133,7 +1132,7 @@ static int tf_pkcs11h_key_x509file(struc
+ 	X509 *x509 = NULL;
+ 	unsigned char *p = NULL;
+ 	FILE *fp = NULL;
+-	int rc;
++	int rc = 0;
+ 
+ 	subgraph_key_ctx = (struct pkcs11h_subgraph_key_ctx *)(*foo);
+ 
+diff -up ecryptfs-utils-103/src/libecryptfs/ecryptfs-stat.c.werror ecryptfs-utils-103/src/libecryptfs/ecryptfs-stat.c
+--- ecryptfs-utils-103/src/libecryptfs/ecryptfs-stat.c.werror	2012-05-18 21:06:17.000000000 +0200
++++ ecryptfs-utils-103/src/libecryptfs/ecryptfs-stat.c	2013-01-28 17:34:48.173138799 +0100
+@@ -146,7 +146,7 @@ int ecryptfs_parse_stat(struct ecryptfs_
+ 	if (buf_size < (ECRYPTFS_FILE_SIZE_BYTES
+ 			+ MAGIC_ECRYPTFS_MARKER_SIZE_BYTES
+ 			+ 4)) {
+-		printf("%s: Invalid metadata size; must have at least [%lu] "
++		printf("%s: Invalid metadata size; must have at least [%zu] "
+ 		       "bytes; there are only [%zu] bytes\n", __FUNCTION__,
+ 		       (ECRYPTFS_FILE_SIZE_BYTES
+ 			+ MAGIC_ECRYPTFS_MARKER_SIZE_BYTES
+diff -up ecryptfs-utils-103/src/libecryptfs/key_management.c.werror ecryptfs-utils-103/src/libecryptfs/key_management.c
+--- ecryptfs-utils-103/src/libecryptfs/key_management.c.werror	2013-01-28 17:34:48.155138657 +0100
++++ ecryptfs-utils-103/src/libecryptfs/key_management.c	2013-01-28 17:34:48.173138799 +0100
+@@ -228,7 +228,6 @@ int ecryptfs_wrap_passphrase_file(char *
+ 	int rc = 0;
+ 	ssize_t size;
+ 	int fd;
+-	int i;
+ 	char *p = NULL;
+ 	char decrypted_passphrase[ECRYPTFS_MAX_PASSPHRASE_BYTES + 1];
+ 
+diff -up ecryptfs-utils-103/src/pam_ecryptfs/pam_ecryptfs.c.werror ecryptfs-utils-103/src/pam_ecryptfs/pam_ecryptfs.c
+--- ecryptfs-utils-103/src/pam_ecryptfs/pam_ecryptfs.c.werror	2012-08-02 15:20:17.000000000 +0200
++++ ecryptfs-utils-103/src/pam_ecryptfs/pam_ecryptfs.c	2013-01-28 17:34:48.174138807 +0100
+@@ -47,31 +47,6 @@
+ 
+ #define PRIVATE_DIR "Private"
+ 
+-static void error(const char *msg)
+-{
+-	syslog(LOG_ERR, "pam_ecryptfs: errno = [%i]; strerror = [%m]\n", errno);
+-	switch (errno) {
+-	case ENOKEY:
+-		syslog(LOG_ERR, "pam_ecryptfs: %s: Requested key not available\n", msg);
+-		return;
+-
+-	case EKEYEXPIRED:
+-		syslog(LOG_ERR, "pam_ecryptfs: %s: Key has expired\n", msg);
+-		return;
+-
+-	case EKEYREVOKED:
+-		syslog(LOG_ERR, "pam_ecryptfs: %s: Key has been revoked\n", msg);
+-		return;
+-
+-	case EKEYREJECTED:
+-		syslog(LOG_ERR, "pam_ecryptfs: %s: Key was rejected by service\n", msg);
+-		return;
+-	default:
+-		syslog(LOG_ERR, "pam_ecryptfs: %s: Unknown key error\n", msg);
+-		return;
+-	}
+-}
+-
+ /* returns: 0 if file does not exist, 1 if it exists, <0 for error */
+ static int file_exists_dotecryptfs(const char *homedir, char *filename)
+ {
+@@ -110,9 +85,7 @@ static int wrap_passphrase_if_necessary(
+ 	    stat(wrapped_pw_filename, &s) != 0  &&
+ 	    passphrase != NULL && *passphrase != '\0' &&
+ 	    username != NULL && *username != '\0') {
+-		setuid(uid);
+-		rc = ecryptfs_wrap_passphrase_file(wrapped_pw_filename, passphrase, salt, unwrapped_pw_filename);
+-		if (rc != 0) {
++		if ((rc = setuid(uid))<0 || ((rc = ecryptfs_wrap_passphrase_file(wrapped_pw_filename, passphrase, salt, unwrapped_pw_filename)) != 0)) {
+ 			syslog(LOG_ERR, "pam_ecryptfs: Error wrapping cleartext password; " "rc = [%d]\n", rc);
+ 		}
+ 		return rc;
+@@ -211,8 +184,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_h
+ 		if ((argc == 1)
+ 		    && (memcmp(argv[0], "unwrap\0", 7) == 0)) {
+ 			char *wrapped_pw_filename;
+-			char *unwrapped_pw_filename;
+-			struct stat s;
+ 
+ 			rc = asprintf(
+ 				&wrapped_pw_filename, "%s/.ecryptfs/%s",
+@@ -304,8 +275,6 @@ static int private_dir(pam_handle_t *pam
+ 	char *autoumount = "auto-umount";
+ 	struct stat s;
+ 	pid_t pid;
+-	struct utmp *u;
+-	int count = 0;
+ 
+ 	if ((pwd = fetch_pwd(pamh)) == NULL) {
+ 		/* fetch_pwd() logged a message */
+@@ -351,7 +320,7 @@ static int private_dir(pam_handle_t *pam
+ 			if (stat(recorded, &s) != 0 && stat("/usr/share/ecryptfs-utils/ecryptfs-record-passphrase", &s) == 0) {
+ 				/* User has not recorded their passphrase */
+ 				unlink("/var/lib/update-notifier/user.d/ecryptfs-record-passphrase");
+-				symlink("/usr/share/ecryptfs-utils/ecryptfs-record-passphrase", "/var/lib/update-notifier/user.d/ecryptfs-record-passphrase");
++				rc=symlink("/usr/share/ecryptfs-utils/ecryptfs-record-passphrase", "/var/lib/update-notifier/user.d/ecryptfs-record-passphrase");
+ 				fd = open("/var/lib/update-notifier/dpkg-run-stamp", O_WRONLY|O_CREAT|O_NONBLOCK, 0666);
+ 				close(fd);
+ 			}
+@@ -430,7 +399,6 @@ PAM_EXTERN int pam_sm_chauthtok(pam_hand
+ 	char *old_passphrase = NULL;
+ 	char *new_passphrase = NULL;
+ 	char *wrapped_pw_filename;
+-	char *name = NULL;
+ 	char salt[ECRYPTFS_SALT_SIZE];
+ 	char salt_hex[ECRYPTFS_SALT_SIZE_HEX];
+ 	pid_t child_pid, tmp_pid;
+@@ -445,15 +413,15 @@ PAM_EXTERN int pam_sm_chauthtok(pam_hand
+ 			uid = pwd->pw_uid;
+ 			gid = pwd->pw_gid;
+ 			homedir = pwd->pw_dir;
+-			name = pwd->pw_name;
+ 		}
+ 	} else {
+ 		syslog(LOG_ERR, "pam_ecryptfs: Error getting passwd info for user [%s]; rc = [%d]\n", username, rc);
+ 		goto out;
+ 	}
+ 
+-	if ((oeuid = geteuid()) < 0 || (oegid = getegid()) < 0 ||
+-	    (ngids = getgroups(sizeof(groups)/sizeof(gid_t), groups)) < 0) {
++	oeuid = geteuid();
++	oegid = getegid();
++	if ((ngids = getgroups(sizeof(groups)/sizeof(gid_t), groups)) < 0) {
+ 		syslog(LOG_ERR, "pam_ecryptfs: geteuid error");
+ 		goto outnouid;
+ 	}
+@@ -512,7 +480,10 @@ PAM_EXTERN int pam_sm_chauthtok(pam_hand
+ 		char passphrase[ECRYPTFS_MAX_PASSWORD_LENGTH + 1];
+ 
+ 		/* temp regain uid 0 to drop privs */
+-		seteuid(oeuid);
++		if (seteuid(oeuid) < 0) {
++			syslog(LOG_ERR, "pam_ecryptfs: seteuid error");
++			goto out_child;
++		}
+ 		/* setgroups() already called */
+ 		if (setgid(gid) < 0 || setuid(uid) < 0)
+ 			goto out_child;
+@@ -537,9 +508,9 @@ out_child:
+ 	free(wrapped_pw_filename);
+ out:
+ 
+-	seteuid(oeuid);
+-	setegid(oegid);
+-	setgroups(ngids, groups);
++	rc = seteuid(oeuid);
++	rc = setegid(oegid);
++	rc = setgroups(ngids, groups);
+ 
+ outnouid:
+ 	return rc;
+diff -up ecryptfs-utils-103/src/utils/mount.ecryptfs.c.werror ecryptfs-utils-103/src/utils/mount.ecryptfs.c
+--- ecryptfs-utils-103/src/utils/mount.ecryptfs.c.werror	2013-01-28 17:34:48.170138776 +0100
++++ ecryptfs-utils-103/src/utils/mount.ecryptfs.c	2013-01-28 17:34:48.174138807 +0100
+@@ -34,6 +34,7 @@
+ #include <sys/mount.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
++#include <sys/wait.h>
+ #include "config.h"
+ #include "ecryptfs.h"
+ #include "decision_graph.h"
+diff -up ecryptfs-utils-103/src/utils/mount.ecryptfs_private.c.werror ecryptfs-utils-103/src/utils/mount.ecryptfs_private.c
+--- ecryptfs-utils-103/src/utils/mount.ecryptfs_private.c.werror	2013-01-28 17:34:48.165138736 +0100
++++ ecryptfs-utils-103/src/utils/mount.ecryptfs_private.c	2013-01-28 17:34:48.175138815 +0100
+@@ -42,6 +42,7 @@
+ #include <unistd.h>
+ #include <syslog.h>
+ #include <values.h>
++#include <ctype.h>
+ #include "../include/ecryptfs.h"
+ 
+ /* Perhaps a future version of this program will allow these to be configurable
+@@ -93,7 +94,7 @@ int read_config(char *pw_dir, int uid, c
+ 	*s = strdup(e->mnt_fsname);
+ 	if (!*s)
+ 		return -2;
+-out:
++
+ 	return 0;
+ }
+ 
+@@ -702,8 +703,8 @@ int main(int argc, char *argv[]) {
+  		 * update mtab for us, and replace the current process.
+ 		 * Do not use the umount.ecryptfs helper (-i).
+  		 */
+-		setresuid(0,0,0);
+-		setresgid(0,0,0);
++		rc=setresuid(0,0,0);
++		rc=setresgid(0,0,0);
+ 		clearenv();
+ 
+ 		/* Since we're doing a lazy unmount anyway, just unmount the current
+diff -up ecryptfs-utils-103/src/utils/test.c.werror ecryptfs-utils-103/src/utils/test.c
+--- ecryptfs-utils-103/src/utils/test.c.werror	2012-05-18 21:06:17.000000000 +0200
++++ ecryptfs-utils-103/src/utils/test.c	2013-01-28 17:34:48.175138815 +0100
+@@ -281,7 +281,7 @@ int ecryptfs_encrypt_page(int page_cache
+ 	struct inode *lower_inode;
+ 	struct ecryptfs_crypt_stat *crypt_stat;
+ 	int rc = 0;
+-	int lower_byte_offset;
++	int lower_byte_offset = 0;
+ 	int orig_byte_offset = 0;
+ 	int num_extents_per_page;
+ #define ECRYPTFS_PAGE_STATE_UNREAD    0
+diff -up ecryptfs-utils-103/tests/kernel/directory-concurrent/test.c.werror ecryptfs-utils-103/tests/kernel/directory-concurrent/test.c
+--- ecryptfs-utils-103/tests/kernel/directory-concurrent/test.c.werror	2012-05-18 21:06:17.000000000 +0200
++++ ecryptfs-utils-103/tests/kernel/directory-concurrent/test.c	2013-01-28 17:34:48.175138815 +0100
+@@ -149,7 +149,7 @@ int hang_check(int option, const char *f
+ 
+ int test_dirs(const char *path, const int max_dirs)
+ {
+-	int i, j;
++	int i/*, j*/;
+ 	char *filename;
+ 	size_t len = strlen(path) + 32;
+ 	int ret = TEST_PASSED;
+diff -up ecryptfs-utils-103/tests/kernel/enospc/test.c.werror ecryptfs-utils-103/tests/kernel/enospc/test.c
+--- ecryptfs-utils-103/tests/kernel/enospc/test.c.werror	2012-08-02 15:20:17.000000000 +0200
++++ ecryptfs-utils-103/tests/kernel/enospc/test.c	2013-01-28 17:34:48.175138815 +0100
+@@ -37,9 +37,6 @@
+ int test_exercise(char *filename, ssize_t size)
+ {
+ 	int fd;
+-	ssize_t i;
+-	ssize_t n;
+-	struct stat statbuf;
+ 	ssize_t nbytes = size;
+ 	int ret = TEST_FAILED;
+ 
+diff -up ecryptfs-utils-103/tests/kernel/extend-file-random/test.c.werror ecryptfs-utils-103/tests/kernel/extend-file-random/test.c
+--- ecryptfs-utils-103/tests/kernel/extend-file-random/test.c.werror	2012-05-18 21:06:17.000000000 +0200
++++ ecryptfs-utils-103/tests/kernel/extend-file-random/test.c	2013-01-28 17:34:48.176138823 +0100
+@@ -48,7 +48,7 @@ int test_write(int fd, char *buffer, siz
+ 	}
+ 
+ 	if (write(fd, buffer, len) != len) {
+-		fprintf(stderr, "Failed to write %lu bytes, position %lu: %s\n", 
++		fprintf(stderr, "Failed to write %zu bytes, position %lu: %s\n", 
+ 			len, offset, strerror(errno));
+ 		return TEST_FAILED;
+ 	}
+@@ -58,13 +58,13 @@ int test_write(int fd, char *buffer, siz
+ int test_read(int fd, char *buffer, size_t len, off_t offset)
+ {
+ 	if (lseek(fd, offset, SEEK_SET) < 0) {
+-		fprintf(stderr, "Failed to seek to position %lu: %s\n", 
++		fprintf(stderr, "Failed to seek to position %ld: %s\n", 
+ 			offset, strerror(errno));
+ 		return TEST_FAILED;
+ 	}
+ 
+ 	if (read(fd, buffer, len) != len) {
+-		fprintf(stderr, "Failed to read %lu bytes, position %lu: %s\n", 
++		fprintf(stderr, "Failed to read %zu bytes, position %lu: %s\n", 
+ 			len, offset, strerror(errno));
+ 		return TEST_FAILED;
+ 	}
+diff -up ecryptfs-utils-103/tests/kernel/file-concurrent/test.c.werror ecryptfs-utils-103/tests/kernel/file-concurrent/test.c
+--- ecryptfs-utils-103/tests/kernel/file-concurrent/test.c.werror	2012-05-18 21:06:17.000000000 +0200
++++ ecryptfs-utils-103/tests/kernel/file-concurrent/test.c	2013-01-28 17:34:48.176138823 +0100
+@@ -177,7 +177,7 @@ int hang_check(int option, const char *f
+ 
+ int test_files(const char *path, const int max_files)
+ {
+-	int i, j;
++	int i;
+ 	char *filename;
+ 	size_t len = strlen(path) + 32;
+ 	int ret = TEST_PASSED;
+diff -up ecryptfs-utils-103/tests/kernel/inode-race-stat/test.c.werror ecryptfs-utils-103/tests/kernel/inode-race-stat/test.c
+--- ecryptfs-utils-103/tests/kernel/inode-race-stat/test.c.werror	2012-08-02 15:20:17.000000000 +0200
++++ ecryptfs-utils-103/tests/kernel/inode-race-stat/test.c	2013-01-28 17:34:48.176138823 +0100
+@@ -106,7 +106,6 @@ static void do_test(const int fdin, cons
+ {
+ 	for (;;) {
+ 		int n;
+-		int ret;
+ 		char cmd[32];
+ 
+ 		if ((n = read(fdin, cmd, sizeof(cmd))) < 1) {
+@@ -122,7 +121,7 @@ static void do_test(const int fdin, cons
+ 		if (cmd[0] == CMD_TEST) {
+ 			int ret;
+ 			off_t sz;
+-			sscanf(cmd+1, "%zd", &sz);
++			sscanf(cmd+1, "%ld", &sz);
+ 
+ 			ret = check_size(filename, sz);
+ 			switch (ret) {
+@@ -307,7 +306,7 @@ int main(int argc, char **argv)
+ 		}
+ 
+ 		/* Now tell children to stat the file */
+-		snprintf(cmd, sizeof(cmd), "%c%zd", CMD_TEST, sz);
++		snprintf(cmd, sizeof(cmd), "%c%ld", CMD_TEST, sz);
+ 		for (i = 0; i < threads; i++) {
+ 			if (write(pipe_to[i][1], cmd, strlen(cmd)+1) < 0) {
+ 				fprintf(stderr, "write to pipe failed: %s\n",
+@@ -364,6 +363,7 @@ abort:
+ 		int ret;
+ 
+ 		ret = write(pipe_to[i][1], cmd, 1);
++		(void)ret;
+ 		(void)waitpid(pids[i], &status, 0);
+ 
+ 		(void)close(pipe_to[i][1]);
+diff -up ecryptfs-utils-103/tests/kernel/lp-509180/test.c.werror ecryptfs-utils-103/tests/kernel/lp-509180/test.c
+--- ecryptfs-utils-103/tests/kernel/lp-509180/test.c.werror	2012-05-18 21:06:17.000000000 +0200
++++ ecryptfs-utils-103/tests/kernel/lp-509180/test.c	2013-01-28 17:34:48.177138831 +0100
+@@ -48,7 +48,6 @@ int main(int argc, char **argv)
+ 	int fd;
+ 	int opt, flags = 0;
+ 	int rc = 0;
+-	unsigned int *ptr;
+ 	char *file;
+ 	unsigned char buffer[1];
+ 
+diff -up ecryptfs-utils-103/tests/kernel/trunc-file/test.c.werror ecryptfs-utils-103/tests/kernel/trunc-file/test.c
+--- ecryptfs-utils-103/tests/kernel/trunc-file/test.c.werror	2012-05-18 21:06:17.000000000 +0200
++++ ecryptfs-utils-103/tests/kernel/trunc-file/test.c	2013-01-28 17:34:48.177138831 +0100
+@@ -39,7 +39,7 @@
+ 
+ int write_buff(int fd, unsigned char *data, ssize_t size)
+ {
+-	char *ptr = data;
++	unsigned char *ptr = data;
+ 	ssize_t n;
+ 	ssize_t sz = size;
+ 
+@@ -55,7 +55,7 @@ int write_buff(int fd, unsigned char *da
+ 
+ int read_buff(int fd, unsigned char *data, ssize_t size)
+ {
+-	char *ptr = data;
++	unsigned char *ptr = data;
+ 	ssize_t n;
+ 	ssize_t sz = size;
+ 
+@@ -88,6 +88,7 @@ int test_write_random(char *filename, in
+ 		}
+ 		buflen -= n;
+ 	}
++	return TEST_PASSED;
+ }
+ 
+ int test_read_random(char *filename, int fd, unsigned char *buff, ssize_t size)
+@@ -157,9 +158,6 @@ int test_read_rest(char *filename, int f
+ int test_exercise(char *filename, ssize_t size)
+ {
+ 	int fd;
+-	ssize_t i;
+-	ssize_t n;
+-	ssize_t buflen;
+ 	int ret = TEST_FAILED;
+ 	ssize_t trunc_size = size / 2;
+ 	struct stat statbuf;
+@@ -254,8 +252,6 @@ void sighandler(int dummy)
+ int main(int argc, char **argv)
+ {
+ 	off_t len = DEFAULT_SIZE;
+-	int i;
+-	int ret;
+ 
+ 	if (argc < 2) {
+ 		fprintf(stderr, "Syntax: %s filename [size_in_K]\n", argv[0]);
+@@ -272,7 +268,7 @@ int main(int argc, char **argv)
+ 
+ 	len *= 1024;
+ 	if (len > SSIZE_MAX) {
+-		fprintf(stderr, "size should be < %zd\n", SSIZE_MAX / 1024);
++		fprintf(stderr, "size should be < %zd\n", (size_t)SSIZE_MAX / 1024);
+ 		exit(TEST_ERROR);
+ 	}
+ 
+diff -up ecryptfs-utils-103/tests/userspace/wrap-unwrap/test.c.werror ecryptfs-utils-103/tests/userspace/wrap-unwrap/test.c
+--- ecryptfs-utils-103/tests/userspace/wrap-unwrap/test.c.werror	2012-11-30 16:41:02.000000000 +0100
++++ ecryptfs-utils-103/tests/userspace/wrap-unwrap/test.c	2013-01-28 17:35:13.503339943 +0100
+@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
+ 	passphrase_size = strlen(passphrase);
+ 	if ((rc = ecryptfs_wrap_passphrase(path, "testwrappw", salt,
+ 					   passphrase)) == 0) {
+-		fprintf(stderr, "ecryptfs_wrap_passphrase() returned rc = 0; "
++		fprintf(stderr, "ecryptfs_wrap_passphrase() returned rc = %d; "
+ 			"expected error result instead\n", rc);
+ 		rc = 1;
+ 		goto out;

@@ -1,0 +1,27 @@
+diff -up ecryptfs-utils-103/src/pam_ecryptfs/pam_ecryptfs.c.fixexecgid ecryptfs-utils-103/src/pam_ecryptfs/pam_ecryptfs.c
+--- ecryptfs-utils-103/src/pam_ecryptfs/pam_ecryptfs.c.fixexecgid	2013-01-28 17:23:15.389634398 +0100
++++ ecryptfs-utils-103/src/pam_ecryptfs/pam_ecryptfs.c	2013-01-28 17:23:15.392634422 +0100
+@@ -330,8 +330,10 @@ static int private_dir(pam_handle_t *pam
+ 				_exit(0);
+ 			}
+ 			clearenv();
+-			if (setgroups(1, &pwd->pw_gid) < 0 || setgid(pwd->pw_gid) < 0)
++			if (initgroups(pwd->pw_name, pwd->pw_gid) != 0) {
++				syslog(LOG_ERR, "Unable to set user's groups : %m");
+ 				_exit(255);
++			}
+ 			/* run mount.ecryptfs_private as the user */
+ 			if (setresuid(pwd->pw_uid, pwd->pw_uid, pwd->pw_uid) < 0)
+ 				_exit(255);
+@@ -345,8 +347,10 @@ static int private_dir(pam_handle_t *pam
+ 				_exit(0);
+ 			}
+ 			clearenv();
+-			if (setgroups(1, &pwd->pw_gid) < 0 || setgid(pwd->pw_gid) < 0)
++			if (initgroups(pwd->pw_name, pwd->pw_gid) != 0) {
++				syslog(LOG_ERR, "Unable to set user's groups : %m");
+ 				_exit(255);
++			}
+ 			/* run umount.ecryptfs_private as the user */
+ 			if (setresuid(pwd->pw_uid, pwd->pw_uid, pwd->pw_uid) < 0)
+ 				_exit(255);

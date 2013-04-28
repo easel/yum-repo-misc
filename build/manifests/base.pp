@@ -1,4 +1,8 @@
 node "default" {
+  package { "mock": ensure => latest }
+  package { "rpm-build": ensure => latest }
+  package { "fedora-packager": ensure => latest }
+	
   file { "/home/vagrant/rpmbuild":
     ensure => directory;
   }

@@ -1,0 +1,20 @@
+diff -up ecryptfs-utils-99/src/utils/ecryptfs-migrate-home.selinux ecryptfs-utils-99/src/utils/ecryptfs-migrate-home
+--- ecryptfs-utils-99/src/utils/ecryptfs-migrate-home.selinux	2012-07-24 14:35:28.428669924 +0200
++++ ecryptfs-utils-99/src/utils/ecryptfs-migrate-home	2012-07-24 14:48:22.656139924 +0200
+@@ -136,6 +136,7 @@ encrypt_dir () {
+ 		error "Cannot proceed."
+ 	fi
+ 	# start encryption
++	[[ "$(getsebool use_ecryptfs_home_dirs 2>/dev/null)" =~ off$ ]] && setsebool -P use_ecryptfs_home_dirs=1 1>/dev/null 2>&1 ||:
+ 	orig=$(mktemp /home/$USER_NAME.XXXXXXXX)
+ 	rm "$orig" && mv "$USER_HOME" "$orig"
+ 	chmod 700 "$orig"
+@@ -158,6 +159,8 @@ encrypt_dir () {
+ 	fi
+ 	info "Encrypted home has been set up, encrypting files now...this may take a while."
+ 	# Show progress, but on stderr, in case the user wants to filter that out
++	semanage fcontext -a -e /home /home/.ecryptfs >/dev/null 2>&1 ||:
++	restorecon -R $HOME/.ecryptfs/$USER >/dev/null 2>&1 ||:
+ 	rsync -aP "$orig/" "$USER_HOME/" 1>&2
+ 	umount "$USER_HOME/"
+ 	echo

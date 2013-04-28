@@ -5,6 +5,17 @@ OPTIONS=-r epel-5-x86_64 --verbose
 ROOT=/home/vagrant/build
 PHANTOMJS_VER=1.8.1-1
 
+
+.PHONY: 
+git:	
+	mock $(OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/git.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/git-1.8.2.1-1.el5.centos.src.rpm
+
+.PHONY: ecryptfs-utils
+ecryptfs-utils:	
+	mock $(OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/ecryptfs-utils.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ecryptfs-utils-103-1.el5.centos.src.rpm
+
 .PHONY: nodejs
 nodejs:	
 	mock $(OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/nodejs.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
