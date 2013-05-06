@@ -8,9 +8,6 @@ default: default
 default: 
 	echo "pick a target"
 
-.PHONY: move 
-move: move checkin use-master
-
 .PHONY: build
 build: createrepo checkin use-master
 
