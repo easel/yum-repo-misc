@@ -47,11 +47,14 @@ make LDFLAGS="-L%{_libdir}" %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT%{_scl_root}
 
+install -d -m 755 $RPM_BUILD_ROOT/etc/httpd/modules
 install -d -m 755 $RPM_BUILD_ROOT%{_sysconfdir}/httpd/conf.d
 install -p -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/httpd/conf.d/%{name}.conf
 
 mv  %{buildroot}%{_libdir}/httpd/modules/mod_wsgi.so \
     %{buildroot}%{_libdir}/httpd/modules/%{name}.so
+
+ln -s %{_libdir}/httpd/modules/%{name}.so $RPM_BUILD_ROOT/etc/httpd/modules/python27-mod_wsgi.so
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -61,7 +64,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc LICENCE README
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
 %{_libdir}/httpd/modules/%{name}.so
-
+/etc/httpd/modules/python27-mod_wsgi.so
 
 %changelog
 * Mon Nov 26 2012 Jeffrey Ness <jeffrey.ness@rackspace.com> - 3.4-2.ius
