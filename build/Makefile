@@ -47,26 +47,26 @@ $(ROOT)/RPMS/phantomjs-$(PHANTOMJS_VER).el5.centos.x86_64.rpm: $(ROOT)/SRPMS/pha
 .PHONY: MySQL-python
 MySQL-python:
 	mock $(PYTHON27_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/MySQL-python.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
-	mock $(PYTHON27_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/MySQL-python-1.2.3-1.el6.src.rpm
+	mock $(PYTHON27_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/python27-MySQL-python-1.2.3-1.el6.src.rpm
 
 .PHONY: python-mod_wsgi
 python-mod_wsgi:
 	mock $(PYTHON27_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/python-mod_wsgi.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
-	mock $(PYTHON27_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/python27-mod_wsgi-3.4-2.ius.src.rpm
+	mock $(PYTHON27_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/python27-mod_wsgi-3.4-2.ius.el6.src.rpm
 
 .PHONY: python-pip
 python-pip:
 	mock $(PYTHON27_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/python-pip.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
-	mock $(PYTHON27_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/python27-python-pip-1.4.1-1.src.rpm
+	mock $(PYTHON27_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/python27-python-pip-1.4.1-1.el6.src.rpm
 
 
 .PHONY: python-virtualenv
 python-virtualenv:
 	mock $(PYTHON27_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/python-virtualenv.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
-	mock $(PYTHON27_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/python27-python-virtualenv-1.7.2-2.src.rpm
+	mock $(PYTHON27_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/python27-python-virtualenv-1.7.2-2.el6.src.rpm
 
 .PHONY: rcov
 rcov:
 	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rcov.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
-	# mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/rcov-???.el6.src.rpm
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-rcov-0.9.9-9.el6.src.rpm
 

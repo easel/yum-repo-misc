@@ -14,6 +14,7 @@ BuildRoot:      %{_tmppath}/%{pkg_name}-%{version}-%{release}-root-%(%{__id_u} -
 
 BuildArch:      x86_64
 BuildRequires:  %{?scl_prefix}python-devel
+BuildRequires:  mysql-devel
 Requires:       %{?scl_prefix}python-setuptools
 Requires:       %{?scl_prefix}python-devel
 

@@ -17,7 +17,10 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildArch:      x86_64
 BuildRequires:  httpd-devel
+BuildRequires:  python27
+BuildRequires:  python27-build
 BuildRequires:  %{?scl_prefix}python-devel
+BuildRequires:  %{?scl_prefix}python-libs
 BuildRequires:  %{?scl_prefix}python-setuptools
 Requires:       %{?scl_prefix}python-setuptools
 
@@ -39,8 +42,10 @@ existing WSGI adapters for mod_python or CGI.
 
 
 %build
-%configure --with-python=%{__python}
-make LDFLAGS="-L%{_libdir}" %{?_smp_mflags}
+%{?scl:scl enable %scl - << \EOF}
+  %configure --with-python=%{__python}
+  make LDFLAGS="-L%{_libdir}" %{?_smp_mflags}
++%{?scl:EOF}
 
 
 %install
