@@ -1,0 +1,8 @@
+%__python2 %{_bindir}/python
+%__python %__python2
+%python2_sitelib %(%{?scl:scl enable %scl '}%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"%{?scl:'})
+%python_sitelib %python2_sitelib
+%python2_sitearch %(%{?scl:scl enable %scl '}%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))"%{?scl:'})
+%python_sitearch %python2_sitearch
+%python2_version %(%{?scl:scl enable %scl '}%{__python2} -c "import sys; sys.stdout.write(sys.version[:3])"%{?scl:'})
+%python_version %python2_version

@@ -1,0 +1,19 @@
+# Adjust the %%__os_install_post to be able to bytecompile right paths with
+# right binary.
+
+# Turn this auto-bytecompiling off by defining %%global _turn_off_bytecompile to any value
+
+# TODO: don't forget to add  "/usr/lib/rpm/brp-scl-compress %%{_scl_root}" when scl-utils are rebased
+
+%__os_install_post \
+    %{!?__debug_package:\
+    /usr/lib/rpm/redhat/brp-strip %{__strip} \
+    /usr/lib/rpm/redhat/brp-strip-comment-note %{__strip} %{__objdump} \
+    } \
+    /usr/lib/rpm/redhat/brp-strip-static-archive %{__strip} \
+    %{!?_turn_off_bytecompile:scl enable %scl '/usr/lib/rpm/redhat/brp-python-bytecompile-with-scl-python %{__python} %{_scl_root} 1'} \
+    /usr/lib/rpm/redhat/brp-python-hardlink
+
+# We need to define this here because pythondeps.sh is not generally usable
+%__python_provides /usr/lib/rpm/pythondeps-scl.sh --provides %{_scl_root} %{scl_prefix}
+%__python_requires /usr/lib/rpm/pythondeps-scl.sh --requires %{_scl_root} %{scl_prefix}

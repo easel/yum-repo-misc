@@ -56,5 +56,23 @@ node "default" {
     /usr/lib/rpm/check-buildroot
 '
   }
+
+  # Add mock definitions for python, ruby, and scl (the latter is to build the python27-build and ruby193-build packages)
+  
+  file { "/etc/mock/python27-x86_64.cfg": 
+    path => "/etc/mock/python27-x86_64.cfg",
+    content => template("python27-x86_64.cfg.erb"),
+  }
+
+  file { "/etc/mock/ruby193-x86_64.cfg": 
+    path => "/etc/mock/ruby193-x86_64.cfg",
+    content => template("ruby193-x86_64.cfg.erb"),
+  }
+
+  file { "/etc/mock/scl-x86_64.cfg":
+    path => "/etc/mock/scl-x86_64.cfg",
+    content => template("scl-x86_64.cfg.erb"),
+  }
 }
-    
+
+  
