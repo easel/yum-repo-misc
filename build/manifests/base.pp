@@ -1,4 +1,9 @@
 node "default" {
+  user { "vagrant":
+     ensure => present,
+     groups => [mock],
+     require => Package['mock']
+  }
   package { "mock": ensure => latest }
   package { "rpm-build": ensure => latest }
   package { "fedora-packager": ensure => latest }

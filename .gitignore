@@ -1,1 +1,4 @@
 .vagrant
+build/RPMS/available_pkgs
+build/RPMS/installed_pkgs
+build/SRPMS/available_pkgs
