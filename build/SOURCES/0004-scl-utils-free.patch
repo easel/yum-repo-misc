@@ -1,0 +1,24 @@
+commit dcd51dcd07d1c79e5d519b6ea0ab7a11d3da66b6
+Author: Jindrich Novy <jnovy@redhat.com>
+Date:   Sat Nov 10 04:15:40 2012 +0100
+
+    Avoid using already freed variable if script execution fails
+
+diff --git a/scl.c b/scl.c
+index 2c4554c..e79beec 100644
+--- a/scl.c
++++ b/scl.c
+@@ -118,12 +118,12 @@ static char **read_script_output( char *ori_cmd ) {
+ 	check_asprintf(&cmd, "%s > %s", ori_cmd, tmp);
+ 	i = system(cmd);
+ 	free(cmd);
+-	free(ori_cmd);
+ 
+ 	if (WEXITSTATUS(i) != 0) {
+ 		fprintf(stderr, "Command execution failed: %s\n", ori_cmd);
+ 		exit(EXIT_FAILURE);
+ 	}
++	free(ori_cmd);
+ 
+ 	if (stat(tmp, &sb) == -1) {
+ 		fprintf(stderr, "%s does not exist\n", tmp);

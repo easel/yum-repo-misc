@@ -1,0 +1,11 @@
+--- Makefile~	2013-05-17 13:59:10.000000000 -0700
++++ Makefile	2013-05-28 20:09:57.199250068 -0700
+@@ -43,7 +43,7 @@
+ 	ln -fs out/Debug/node $@
+ endif
+ 
+-out/Makefile: common.gypi deps/uv/uv.gyp deps/http_parser/http_parser.gyp deps/zlib/zlib.gyp deps/v8/build/common.gypi deps/v8/tools/gyp/v8.gyp node.gyp config.gypi
++out/Makefile: common.gypi node.gyp config.gypi
+ ifeq ($(USE_NINJA),1)
+ 	touch out/Makefile
+ 	$(PYTHON) tools/gyp_node -f ninja

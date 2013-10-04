@@ -1,0 +1,24 @@
+diff -r 74687680a283 -r a1f50d969fe8 sphinx/util/__init__.py
+--- a/sphinx/util/__init__.py	Mon Oct 29 21:38:48 2012 +0900
++++ b/sphinx/util/__init__.py	Tue Oct 30 10:04:18 2012 +0900
+@@ -197,14 +197,14 @@
+         except Exception, err:
+             raise PycodeError('error importing %r' % modname, err)
+     mod = sys.modules[modname]
+-    if hasattr(mod, '__loader__'):
+-        try:
+-            source = mod.__loader__.get_source(modname)
+-        except Exception, err:
+-            raise PycodeError('error getting source for %r' % modname, err)
+-        return 'string', source
+     filename = getattr(mod, '__file__', None)
+     if filename is None:
++        if hasattr(mod, '__loader__'):
++            try:
++                source = mod.__loader__.get_source(modname)
++            except Exception, err:
++                raise PycodeError('error getting source for %r' % modname, err)
++            return 'string', source
+         raise PycodeError('no source found for module %r' % modname)
+     filename = path.normpath(path.abspath(filename))
+     lfilename = filename.lower()

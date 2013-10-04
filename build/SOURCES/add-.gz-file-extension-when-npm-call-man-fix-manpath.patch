@@ -1,0 +1,87 @@
+From f71b29de09ad5592c9fd38c8531fe3d617d819a6 Mon Sep 17 00:00:00 2001
+From: Tomas Hrcka <thrcka@redhat.com>
+Date: Sat, 1 Jun 2013 17:05:02 +0200
+Subject: [PATCH] add .gz file extension when npm call man, fix manpath
+
+---
+ lib/help-search.js |    5 +++--
+ lib/help.js        |   24 +++++++++++++++---------
+ 2 files changed, 18 insertions(+), 11 deletions(-)
+
+diff --git a/lib/help-search.js b/lib/help-search.js
+index b0b15ba..0b87b4e 100644
+--- a/lib/help-search.js
++++ b/lib/help-search.js
+@@ -4,10 +4,11 @@ module.exports = helpSearch
+ var fs = require("graceful-fs")
+   , path = require("path")
+   , asyncMap = require("slide").asyncMap
+-  , cliDocsPath = path.join(__dirname, "..", "doc", "cli")
+-  , apiDocsPath = path.join(__dirname, "..", "doc", "api")
+   , log = require("npmlog")
+   , npm = require("./npm.js")
++  , rootDocsPath = path.join("/opt/rh/nodejs010/root/usr/share/doc", "nodejs010-npm-" + npm.version)
++  , cliDocsPath = path.join(rootDocsPath, "cli")
++  , apiDocsPath = path.join(rootDocsPath, "api")
+ 
+ helpSearch.usage = "npm help-search <text>"
+ 
+diff --git a/lib/help.js b/lib/help.js
+index a8b1f2d..48ac5e1 100644
+--- a/lib/help.js
++++ b/lib/help.js
+@@ -39,11 +39,13 @@ function help (args, cb) {
+       return cb()
+     }
+ 
+-    var sectionPath = path.join( __dirname, "..", "man", "man" + num
+-                               , section + "." + num)
+-      , htmlPath = path.resolve( __dirname, "..", "html"
+-                               , num === 3 ? "api" : "doc"
+-                               , section+".html" )
++    var manSection = 0 == section.indexOf("npm") ? "npm" : "npm-" + section
++      , sectionPath = path.join( "/opt/rh/nodejs010/root/usr/share/man", "man" + num
++                               , manSection + "." + num + ".gz")
++      , htmlPath = path.resolve( "/opt/rh/nodejs010/root/usr/share/doc", "npm-" + npm.version, "html"
++                                , num === 3 ? "api" : "doc"
++                                , section+".html" )
++
+     return fs.stat
+       ( sectionPath
+       , function (e, o) {
+@@ -54,7 +56,6 @@ function help (args, cb) {
+           Object.keys(process.env).forEach(function (i) {
+             env[i] = process.env[i]
+           })
+-          env.MANPATH = manpath
+           var viewer = npm.config.get("viewer")
+ 
+           switch (viewer) {
+@@ -68,7 +69,11 @@ function help (args, cb) {
+               break
+ 
+             default:
+-              exec("man", [num, section], env, true, cb)
++              if (section == 'npm') {
++		exec("man", [num, "npm"], env, true, cb);
++	      } else {
++		exec("man", [num, "npm-" + section], env, true, cb);
++	      }		
+           }
+         }
+       )
+@@ -138,8 +143,9 @@ function wrap (arr) {
+ function getSections (num, cb) {
+   if (typeof cb !== "function") cb = num, num = 1
+ 
+-  var mp = path.join(__dirname, "../man/man" + num + "/")
+-    , cleaner = new RegExp("\\." + num + "$")
++  var type = num === 3 ? "api" : "cli"
++    , mp = path.join("/opt/rh/nodejs010/root/usr/share/doc/", "nodejs010-npm-" + npm.version, type)
++    , cleaner = new RegExp("\\.md$")
+   fs.readdir(mp, function (er, files) {
+     if (er) return cb(er)
+     var sectionList = files.concat("help." + num)
+-- 
+1.7.1
+

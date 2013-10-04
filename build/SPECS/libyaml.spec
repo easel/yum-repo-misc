@@ -6,7 +6,7 @@
 
 Name:       %{?scl:%scl_prefix}libyaml
 Version:    0.1.4
-Release:    4%{?dist}
+Release:    5%{?dist}
 Summary:    YAML 1.1 parser and emitter written in C
 
 Group:      System Environment/Libraries
@@ -14,6 +14,7 @@ License:    MIT
 URL:        http://pyyaml.org/
 Source0:    http://pyyaml.org/download/libyaml/%{tarballname}-%{version}.tar.gz
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+%{?scl:Requires: %scl_runtime}
 
 # filter pkgconfig Provides
 %{?scl:%filter_from_provides s|pkgconfig|%{scl_prefix}pkgconfig|g}
@@ -80,6 +81,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon May 13 2013 Vít Ondruch <vondruch@redhat.com> - 0.1.4-5
+- Require collection -runtime package, to properly remove all files.
+- Resolves:  rhbz#956236
+
 * Wed Nov 14 2012 Bohuslav Kabrda <bkabrda@redhat.com> - 0.1.4-4
 - Rebuilt for PPC.
 

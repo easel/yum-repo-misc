@@ -1,0 +1,30 @@
+--- Makefile.PL
++++ Makefile.PL
+@@ -4,7 +4,7 @@ use warnings;
+ 
+ use 5.006;
+ 
+-use ExtUtils::MakeMaker 6.30;
++use ExtUtils::MakeMaker;
+ 
+ 
+ 
+@@ -21,7 +21,7 @@ my %WriteMakefileArgs = (
+     "constant" => 0
+   },
+   "CONFIGURE_REQUIRES" => {
+-    "ExtUtils::MakeMaker" => "6.30"
++    "ExtUtils::MakeMaker" => "0"
+   },
+   "DISTNAME" => "Perl-OSType",
+   "EXE_FILES" => [],
+@@ -55,6 +55,9 @@ unless ( eval { ExtUtils::MakeMaker->VER
+ delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
+   unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
+ 
++delete $WriteMakefileArgs{LICENSE}
++  unless eval { ExtUtils::MakeMaker->VERSION(6.31) };
++
+ WriteMakefile(%WriteMakefileArgs);
+ 
+ 

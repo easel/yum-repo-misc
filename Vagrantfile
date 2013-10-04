@@ -42,7 +42,7 @@ Vagrant::Config.run do |config|
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "build/manifests"
     puppet.manifest_file  = "base.pp"
-    puppet.options        = ["--templatedir", "build/manifests/templates"]
+    puppet.options        = ["--templatedir", "templates"]
    end
 
 end

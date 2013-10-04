@@ -1,0 +1,19 @@
+commit 21a2010bf2768bc658e09666c2135063ce004efc
+Author: Armin Ronacher <armin.ronacher@active-4.com>
+Date:   Sun Sep 16 08:30:50 2012 +0900
+
+    Fixed an unicode error after 2to3
+
+diff --git a/jinja2/environment.py b/jinja2/environment.py
+index 130f9a1..1b5dc40 100644
+--- a/jinja2/environment.py
++++ b/jinja2/environment.py
+@@ -572,7 +572,7 @@ class Environment(object):
+ 
+             # Python 3.3 added a source filesize to the header
+             if sys.version_info >= (3, 3):
+-                py_header += '\x00\x00\x00\x00'
++                py_header += u'\x00\x00\x00\x00'.encode('iso-8859-15')
+ 
+         def write_file(filename, data, mode):
+             if zip:

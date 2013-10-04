@@ -1,0 +1,26 @@
+From 2f93a7aedd12801cb7041a77961a1c8d6be5f34d Mon Sep 17 00:00:00 2001
+From: Jan Zeleny <jzeleny@redhat.com>
+Date: Thu, 25 Apr 2013 14:40:57 +0200
+Subject: [PATCH 1/3] Delete unnecessary argument from check_asprintf()
+
+Bug: #953520
+---
+ scl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scl.c b/scl.c
+index 7204ba8a06d097c8b7615b0079979e7ed83e6aa1..d02e82f0825ca804c82325111909d445c4758ca3 100644
+--- a/scl.c
++++ b/scl.c
+@@ -201,7 +201,7 @@ static int list_packages_in_collection( const char *colname) {
+ 		fprintf(stderr, "warning: collection \"%s\" doesn't seem to be installed, checking anyway...\n", colname);
+ 	}
+ 
+-	check_asprintf(&cmd, "rpm -qa --qf=\"#%%{name}-%%{version}-%%{release}.%%{arch}\n%%{sourcerpm}\n[%%{provides}\n]\"", colname);
++	check_asprintf(&cmd, "rpm -qa --qf=\"#%%{name}-%%{version}-%%{release}.%%{arch}\n%%{sourcerpm}\n[%%{provides}\n]\"");
+ 	lines = read_script_output(cmd);
+ 	if (!lines[0]) {
+ 		fprintf(stderr, "No package list from RPM received.\n");
+-- 
+1.7.11.7
+

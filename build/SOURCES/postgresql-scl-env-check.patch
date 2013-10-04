@@ -1,0 +1,70 @@
+diff -up postgresql-9.2.4/postgresql.init.scl-env-check postgresql-9.2.4/postgresql.init
+--- postgresql-9.2.4/postgresql.init.scl-env-check	2013-04-18 09:33:34.890373656 +0200
++++ postgresql-9.2.4/postgresql.init	2013-05-02 14:08:26.538643086 +0200
+@@ -1,6 +1,6 @@
+ #!/bin/sh
+ #
+-# postgresql	This is the init script for starting up the PostgreSQL
++# __SCL_NAME__-postgresql	This is the init script for starting up the PostgreSQL
+ #		server.
+ #
+ # This script is slightly unusual in that the name of the daemon (postmaster)
+@@ -11,7 +11,7 @@
+ # processname: postmaster
+ # pidfile: /var/run/postmaster.PORT.pid
+ ### BEGIN INIT INFO
+-# Provides: postgresql
++# Provides: __SCL_NAME__-postgresql
+ # Required-Start: $local_fs $remote_fs $network $named $syslog $time
+ # Required-Stop: $local_fs $remote_fs $network $named $syslog $time
+ # Short-Description: start and stop PostgreSQL server
+@@ -99,7 +99,7 @@ start(){
+ 		then
+ 			echo
+ 			echo $"An old version of the database format was found."
+-			echo $"Use \"service postgresql upgrade\" to upgrade to version $PGMAJORVERSION."
++			echo $"Use \"service __SCL_NAME__-postgresql upgrade\" to upgrade to version $PGMAJORVERSION."
+ 			echo $"See $PGDOCDIR/README.rpm-dist for more information."
+ 			exit 1
+ 		else
+@@ -112,7 +112,7 @@ start(){
+ 	else
+ 		# No existing PGDATA! Warn the user to initdb it.
+ 		echo
+-                echo $"$PGDATA is missing. Use \"service postgresql initdb\" to initialize the cluster first."
++                echo $"$PGDATA is missing. Use \"service __SCL_NAME__-postgresql initdb\" to initialize the cluster first."
+ 		echo_failure
+ 		echo
+ 		exit 1
+@@ -240,7 +240,7 @@ upgrade(){
+     if [ ! -x "$PGENGINE/pg_upgrade" ]
+     then
+ 	echo
+-	echo $"Please install the postgresql-upgrade RPM."
++	echo $"Please install the __SCL_NAME__-postgresql-upgrade RPM."
+ 	echo_failure
+ 	echo
+ 	exit 5
+@@ -299,6 +299,22 @@ upgrade(){
+     echo $"See $PGUPLOG for details."
+ }
+ 
++# We have to re-enable SCL environment, because /sbin/service
++# clears almost all environment variables.
++# Since X_SCLS is cleared as well, we lose information about other
++# collections enabled.
++. __SCL_SCRIPTS__/service-environment
++for sclname in $POSTGRESQL92_POSTGRESQL_SCLS_ENABLED ; do
++    . /opt/rh/$sclname/enable
++    export X_SCLS="$X_SCLS $sclname"
++done
++
++# we want start daemon only inside "scl enable" invocation
++if ! scl_enabled __SCL_NAME__ ; then
++    echo "Collection __SCL_NAME__ has to be listed in __SCL_SCRIPTS__/service-environment"
++    exit 1
++fi
++
+ # See how we were called.
+ case "$1" in
+   start)

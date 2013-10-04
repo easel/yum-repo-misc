@@ -1,0 +1,41 @@
+From 17e878c9e46a45f3a8b5a02357a5f741ebf75c7f Mon Sep 17 00:00:00 2001
+From: Jan Zeleny <jzeleny@redhat.com>
+Date: Thu, 25 Apr 2013 17:09:06 +0200
+Subject: [PATCH] Add all the collections enabled to SCLS env variable, not
+ only the first
+
+---
+ scl.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/scl.c b/scl.c
+index 8005fcaf05f4763d2982388ebf369b6baafb0eaf..d315666fb9ca20441b10e03f3988ba7d2d6f8247 100644
+--- a/scl.c
++++ b/scl.c
+@@ -303,10 +303,7 @@ int main(int argc, char **argv) {
+ 
+ 	tfd = mkstemp(tmp);
+ 
+-	check_asprintf(&enabled, "scl_enabled %s\nif [ $? != 0 ]; then\n"
+-				 "  eval \"SCLS=( ${x_scls[*]} )\"\n"
+-				 "  SCLS+=(%s)\n"
+-				 "  export X_SCLS=$(printf '%%q ' \"${SCLS[@]}\")\nfi\n", argv[2], argv[2]);
++	check_asprintf(&enabled, "eval \"SCLS=( ${X_SCLS[*]} )\"\n");
+ 	write_script(tfd, enabled);
+ 	free(enabled);
+ 
+@@ -315,6 +312,11 @@ int main(int argc, char **argv) {
+ 		size_t r;
+ 		char scl_dir[BUFSIZ];
+ 
++		check_asprintf(&enabled, "scl_enabled %s\nif [ $? != 0 ]; then\n"
++					 "  SCLS+=(%s)\n"
++					 "  export X_SCLS=$(printf '%%q ' \"${SCLS[@]}\")\nfi\n", argv[i], argv[i]);
++		write_script(tfd, enabled);
++		free(enabled);
+ 		check_asprintf(&path, "/etc/scl/prefixes/%s", argv[i]);
+ 		if (!(f=fopen(path,"r"))) {
+ 			fprintf(stderr, "Unable to open %s!\n", path);
+-- 
+1.7.11.7
+

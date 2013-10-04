@@ -1,0 +1,56 @@
+commit 6ef19270b7dcbfb0106f9b9c9ae2aa17e3de2cbf
+Author: John Szakmeister <john@szakmeister.net>
+Date:   Fri Dec 7 16:12:34 2012 -0500
+
+    Another doctest fix to work with Python 3.3.
+    
+    In Python 3.3, it's quoting the module name with single quotes, which is
+    different than Python previous Python implementations.  Use the
+    ELLIPSIS feature to help match around it.
+
+diff --git a/functional_tests/test_withid_failures.rst b/functional_tests/test_withid_failures.rst
+index 5a371b7..cf09d4f 100644
+--- a/functional_tests/test_withid_failures.rst
++++ b/functional_tests/test_withid_failures.rst
+@@ -6,17 +6,17 @@
+     >>> idfile = tempfile.mktemp()
+     >>> support = os.path.join(os.path.dirname(__file__), 'support', 'id_fails')
+     >>> argv = [__file__, '-v', '--with-id', '--id-file', idfile, support]
+-    >>> run(argv=argv, plugins=[TestId()])
+-    #1 Failure: ImportError (No module named apackagethatdoesntexist) ... ERROR
++    >>> run(argv=argv, plugins=[TestId()]) # doctest: +ELLIPSIS
++    #1 Failure: ImportError (No module ...apackagethatdoesntexist...) ... ERROR
+     #2 test_b.test ... ok
+     #3 test_b.test_fail ... FAIL
+     <BLANKLINE>
+     ======================================================================
+-    ERROR: Failure: ImportError (No module named apackagethatdoesntexist)
++    ERROR: Failure: ImportError (No module ...apackagethatdoesntexist...)
+     ----------------------------------------------------------------------
+     Traceback (most recent call last):
+     ...
+-    ImportError: No module named apackagethatdoesntexist
++    ImportError: No module ...apackagethatdoesntexist...
+     <BLANKLINE>
+     ======================================================================
+     FAIL: test_b.test_fail
+@@ -34,15 +34,15 @@ Addressing failures works (sometimes).
+ 
+     >>> argv.append('1')
+     >>> _junk = sys.modules.pop('test_a', None) # 2.3 requires
+-    >>> run(argv=argv, plugins=[TestId()])
+-    #1 Failure: ImportError (No module named apackagethatdoesntexist) ... ERROR
++    >>> run(argv=argv, plugins=[TestId()]) #doctest: +ELLIPSIS
++    #1 Failure: ImportError (No module ...apackagethatdoesntexist...) ... ERROR
+     <BLANKLINE>
+     ======================================================================
+-    ERROR: Failure: ImportError (No module named apackagethatdoesntexist)
++    ERROR: Failure: ImportError (No module ...apackagethatdoesntexist...)
+     ----------------------------------------------------------------------
+     Traceback (most recent call last):
+     ...
+-    ImportError: No module named apackagethatdoesntexist
++    ImportError: No module ...apackagethatdoesntexist...
+     <BLANKLINE>
+     ----------------------------------------------------------------------
+     Ran 1 test in ...s

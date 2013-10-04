@@ -1,0 +1,43 @@
+From e32893491b6d02c86450a9384732696ce5ba78eb Mon Sep 17 00:00:00 2001
+From: Konstantin Haase <konstantin.mailinglists@googlemail.com>
+Date: Wed, 7 Mar 2012 16:51:35 +0100
+Subject: [PATCH] do not concatinate params. fixes #452, fixes #453.
+
+---
+ lib/sinatra/base.rb  | 2 +-
+ test/routing_test.rb | 6 ++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/lib/sinatra/base.rb b/lib/sinatra/base.rb
+index 25797b7..673390d 100644
+--- a/lib/sinatra/base.rb
++++ b/lib/sinatra/base.rb
+@@ -829,7 +829,7 @@ def process_route(pattern, keys, conditions, block = nil, values = [])
+ 
+       if values.any?
+         original, @params = params, params.merge('splat' => [], 'captures' => values)
+-        keys.zip(values) { |k,v| (@params[k] ||= '') << v if v }
++        keys.zip(values) { |k,v| Array === @params[k] ? @params[k] << v : @params[k] = v if v }
+       end
+ 
+       catch(:pass) do
+diff --git a/test/routing_test.rb b/test/routing_test.rb
+index db48a5a..80b0a00 100644
+--- a/test/routing_test.rb
++++ b/test/routing_test.rb
+@@ -236,6 +236,12 @@ class RoutingTest < Test::Unit::TestCase
+     assert_equal "format=", body
+   end
+ 
++  it 'does not concatinate params with the same name' do
++    mock_app { get('/:foo') { params[:foo] } }
++    get '/a?foo=b'
++    assert_body 'a'
++  end
++
+   it "supports single splat params like /*" do
+     mock_app {
+       get '/*' do
+-- 
+1.8.1.6
+
