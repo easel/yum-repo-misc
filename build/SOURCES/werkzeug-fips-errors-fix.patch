@@ -1,0 +1,42 @@
+--- Werkzeug-0.8.3/werkzeug/contrib/cache.py
++++ Werkzeug-0.8.3/werkzeug/contrib/cache.py
+@@ -625,7 +625,10 @@ class FileSystemCache(BaseCache):
+                 pass
+ 
+     def _get_filename(self, key):
+-        hash = md5(key).hexdigest()
++        try:
++            hash = md5(key).hexdigest()
++        except ValueError as err:
++            raise ValueError, "MD5 is disabled in FIPS mode (%s)." % err
+         return os.path.join(self._path, hash)
+ 
+     def get(self, key):
+--- Werkzeug-0.8.3/werkzeug/http.py
++++ Werkzeug-0.8.3/werkzeug/http.py
+@@ -558,7 +558,10 @@ def parse_etags(value):
+ 
+ def generate_etag(data):
+     """Generate an etag for some data."""
+-    return md5(data).hexdigest()
++    try:
++        return md5(data).hexdigest()
++    except ValueError as err:
++        raise ValueError, "MD5 is disabled in FIPS mode (%s)." % err
+ 
+ 
+ def parse_date(value):
+--- Werkzeug-0.8.3/werkzeug/security.py
++++ Werkzeug-0.8.3/werkzeug/security.py
+@@ -72,7 +72,10 @@ def _hash_internal(method, salt, password):
+             return None
+         if isinstance(salt, unicode):
+             salt = salt.encode('utf-8')
+-        h = hmac.new(salt, None, _hash_mods[method])
++        try:
++            h = hmac.new(salt, None, _hash_mods[method])
++        except ValueError as err:
++            raise ValueError, "MD5 is disabled in FIPS mode (%s)." % err
+     else:
+         if method not in _hash_funcs:
+             return None

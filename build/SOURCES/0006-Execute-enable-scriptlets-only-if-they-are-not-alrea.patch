@@ -1,0 +1,34 @@
+From 384fb5fb629f9a952d604792be6bf808bf8f2f0d Mon Sep 17 00:00:00 2001
+From: Jan Zeleny <jzeleny@redhat.com>
+Date: Fri, 17 May 2013 15:12:51 +0200
+Subject: [PATCH] Execute enable scriptlets only if they are not already
+ enabled
+
+---
+ scl.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/scl.c b/scl.c
+index dc9100a8cec101817f12811360148c6a98790dbd..81fdf5d94a9e011d697cd422cd581d21364d7eca 100644
+--- a/scl.c
++++ b/scl.c
+@@ -314,7 +314,7 @@ int main(int argc, char **argv) {
+ 
+ 		check_asprintf(&enabled, "/usr/bin/scl_enabled %s\nif [ $? != 0 ]; then\n"
+ 					 "  SCLS+=(%s)\n"
+-					 "  export X_SCLS=$(printf '%%q ' \"${SCLS[@]}\")\nfi\n", argv[i], argv[i]);
++					 "  export X_SCLS=$(printf '%%q ' \"${SCLS[@]}\")\n", argv[i], argv[i]);
+ 		write_script(tfd, enabled);
+ 		free(enabled);
+ 		check_asprintf(&path, "/etc/scl/prefixes/%s", argv[i]);
+@@ -359,6 +359,7 @@ int main(int argc, char **argv) {
+ 			unlink(tmp);
+ 			exit(EXIT_FAILURE);
+ 		}
++		write_script(tfd, "fi\n");
+ 
+ 		close(ffd);
+ 		free(echo);
+-- 
+1.7.11.7
+

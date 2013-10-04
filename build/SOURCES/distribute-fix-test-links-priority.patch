@@ -1,0 +1,27 @@
+changeset:   1009:8d053cd2bf8e
+user:        Lennart Regebro <regebro@gmail.com>
+date:        Wed Aug 22 17:36:10 2012 +0200
+summary:     Issue 315:
+
+diff -r 9498c594895d -r 8d053cd2bf8e setuptools/tests/server.py
+--- a/setuptools/tests/server.py	Wed Aug 22 16:48:48 2012 +0200
++++ b/setuptools/tests/server.py	Wed Aug 22 17:36:10 2012 +0200
+@@ -2,6 +2,7 @@
+ """
+ import urllib2
+ import sys
++import time
+ import threading
+ import BaseHTTPServer
+ from BaseHTTPServer import HTTPServer
+@@ -34,6 +35,9 @@
+     def stop(self):
+         "Stop the server"
+ 
++        # Let the server finish the last request adn wait for a new one.
++        time.sleep(0.1)
++
+         # self.shutdown is not supported on python < 2.6, so just
+         #  set _run to false, and make a request, causing it to
+         #  terminate.
+

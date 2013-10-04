@@ -1,0 +1,30 @@
+From aac2129643fcb677a0e37ed40d75c5efe8982f19 Mon Sep 17 00:00:00 2001
+From: Tomas Hrcka <thrcka@redhat.com>
+Date: Thu, 20 Jun 2013 12:50:12 +0200
+Subject: [PATCH] Fix error meassage for missing README.md
+
+---
+ read-json.js |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/read-json.js b/read-json.js
+index 9ca3e4e..6696727 100644
+--- a/read-json.js
++++ b/read-json.js
+@@ -390,8 +390,11 @@ function typoWarn (file, data) {
+ 
+ function noreadmeWarn (file, data) {
+                 if (data.readme) return;
+-                warn(file, data, "No README.md file found!")
+-                data.readme = "ERROR: No README.md file found!"
++		// This is ugly hack, I did it because we are moving README.md file
++		// to shared dir, more sofisticated fix will come with 
++		// new release of npm and its dependencies
++                // warn(file, data, "No README.md file found!")
++                // data.readme = "ERROR: No README.md file found!"
+ }
+ 
+ function checkTypo (file, data, d) {
+-- 
+1.7.1
+

@@ -1,0 +1,109 @@
+From f5488561bdaab57380bf07e8e66778503a41aca3 Mon Sep 17 00:00:00 2001
+From: Father Chrysostomos <sprout@cpan.org>
+Date: Sun, 23 Sep 2012 12:42:15 -0700
+Subject: [PATCH] =?UTF-8?q?Don=E2=80=99t=20leak=20if=20hh=20copying=20dies?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When %^H is copied on entering a new scope, if it happens to have been
+tied it can die.  This was resulting in leaks, because no protections
+were added to handle that case.
+
+The two things that were leaking were the new hash in hv_copy_hints_hv
+and the new value (for an element) in newSVsv.
+
+By fixing newSVsv itself, this also fixes any potential leaks when
+other pieces of code call newSVsv on explosive values.
+
+Petr Pisar: Ported to 5.16.3
+---
+ hv.c          |  6 ++++++
+ sv.c          |  7 ++++---
+ t/op/svleak.t | 22 +++++++++++++++++++++-
+ 3 files changed, 31 insertions(+), 4 deletions(-)
+
+diff --git a/hv.c b/hv.c
+index 3c35341..29d6352 100644
+--- a/hv.c
++++ b/hv.c
+@@ -1440,6 +1440,9 @@ Perl_hv_copy_hints_hv(pTHX_ HV *const ohv)
+ 	const I32 riter = HvRITER_get(ohv);
+ 	HE * const eiter = HvEITER_get(ohv);
+ 
++	ENTER;
++	SAVEFREESV(hv);
++
+ 	while (hv_max && hv_max + 1 >= hv_fill * 2)
+ 	    hv_max = hv_max / 2;
+ 	HvMAX(hv) = hv_max;
+@@ -1461,6 +1464,9 @@ Perl_hv_copy_hints_hv(pTHX_ HV *const ohv)
+ 	}
+ 	HvRITER_set(ohv, riter);
+ 	HvEITER_set(ohv, eiter);
++
++	SvREFCNT_inc_simple_void_NN(hv);
++	LEAVE;
+     }
+     hv_magic(hv, NULL, PERL_MAGIC_hints);
+     return hv;
+diff --git a/sv.c b/sv.c
+index a43feac..597d71b 100644
+--- a/sv.c
++++ b/sv.c
+@@ -8764,11 +8764,12 @@ Perl_newSVsv(pTHX_ register SV *const old)
+ 	Perl_ck_warner_d(aTHX_ packWARN(WARN_INTERNAL), "semi-panic: attempt to dup freed string");
+ 	return NULL;
+     }
++    /* Do this here, otherwise we leak the new SV if this croaks. */
++    SvGETMAGIC(old);
+     new_SV(sv);
+-    /* SV_GMAGIC is the default for sv_setv()
+-       SV_NOSTEAL prevents TEMP buffers being, well, stolen, and saves games
++    /* SV_NOSTEAL prevents TEMP buffers being, well, stolen, and saves games
+        with SvTEMP_off and SvTEMP_on round a call to sv_setsv.  */
+-    sv_setsv_flags(sv, old, SV_GMAGIC | SV_NOSTEAL);
++    sv_setsv_flags(sv, old, SV_NOSTEAL);
+     return sv;
+ }
+ 
+diff --git a/t/op/svleak.t b/t/op/svleak.t
+index 2f09af3..011c184 100644
+--- a/t/op/svleak.t
++++ b/t/op/svleak.t
+@@ -13,7 +13,7 @@ BEGIN {
+ 	or skip_all("XS::APItest not available");
+ }
+ 
+-plan tests => 23;
++plan tests => 24;
+ 
+ # run some code N times. If the number of SVs at the end of loop N is
+ # greater than (N-1)*delta at the end of loop 1, we've got a leak
+@@ -176,3 +176,23 @@ leak(2, 0, sub {
+     each %$h;
+     undef $h;
+ }, 'tied hash iteration does not leak');
++
++# [perl #107000]
++package hhtie {
++    sub TIEHASH { bless [] }
++    sub STORE    { $_[0][0]{$_[1]} = $_[2] }
++    sub FETCH    { die if $explosive; $_[0][0]{$_[1]} }
++    sub FIRSTKEY { keys %{$_[0][0]}; each %{$_[0][0]} }
++    sub NEXTKEY  { each %{$_[0][0]} }
++}
++leak(2,!!$Config{mad}, sub {
++    eval q`
++    	BEGIN {
++	    $hhtie::explosive = 0;
++	    tie %^H, hhtie;
++	    $^H{foo} = bar;
++	    $hhtie::explosive = 1;
++    	}
++	{ 1; }
++    `;
++}, 'hint-hash copying does not leak');
+-- 
+1.8.1.4
+

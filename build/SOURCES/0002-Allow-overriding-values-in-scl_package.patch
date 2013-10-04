@@ -1,0 +1,29 @@
+From e79b68108ec1c7a5ac9be36bbcbcd56169400d5e Mon Sep 17 00:00:00 2001
+From: Jan Zeleny <jzeleny@redhat.com>
+Date: Fri, 26 Apr 2013 15:53:38 +0200
+Subject: [PATCH] Allow overriding values in %scl_package
+
+This can be done by defining %scl_package_override with a content that
+is supposed to be overriding default values
+---
+ macros.scl | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/macros.scl b/macros.scl
+index a0e9ff137bc01b4ee86e7961fca0d80e7e6514a8..8b6377ee00fd26c89db1748c96e703e30214e9d9 100644
+--- a/macros.scl
++++ b/macros.scl
+@@ -68,7 +68,9 @@ package or when debugging this package.
+ %endif
+ %{nil}}
+ BuildRequires: scl-utils-build
+-}}
++}
++%{?scl_package_override:%scl_package_override}
++}
+ 
+ %scl_require()	%{_scl_prefix}/%1/enable, %1
+ %scl_require_package() %1-%2
+-- 
+1.7.11.7
+

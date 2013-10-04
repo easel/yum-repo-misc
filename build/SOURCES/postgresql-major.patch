@@ -1,0 +1,53 @@
+We really don't want applications build against core system
+libraries to be linked with libraries from the collection.
+Therefore we change major version number of the libraries
+in the collection by prefixing the soname with collection name.
+
+diff -up postgresql-9.2.4/src/interfaces/ecpg/compatlib/Makefile.major postgresql-9.2.4/src/interfaces/ecpg/compatlib/Makefile
+--- postgresql-9.2.4/src/interfaces/ecpg/compatlib/Makefile.major	2013-05-02 14:35:05.244198641 +0200
++++ postgresql-9.2.4/src/interfaces/ecpg/compatlib/Makefile	2013-05-02 14:37:12.298242792 +0200
+@@ -14,7 +14,7 @@ top_builddir = ../../../..
+ include $(top_builddir)/src/Makefile.global
+ 
+ NAME= ecpg_compat
+-SO_MAJOR_VERSION= 3
++SO_MAJOR_VERSION= __SCL_NAME__-3
+ SO_MINOR_VERSION= 4
+ 
+ override CPPFLAGS := -I../include -I$(top_srcdir)/src/interfaces/ecpg/include \
+diff -up postgresql-9.2.4/src/interfaces/ecpg/ecpglib/Makefile.major postgresql-9.2.4/src/interfaces/ecpg/ecpglib/Makefile
+--- postgresql-9.2.4/src/interfaces/ecpg/ecpglib/Makefile.major	2013-05-02 14:35:15.684202269 +0200
++++ postgresql-9.2.4/src/interfaces/ecpg/ecpglib/Makefile	2013-05-02 14:37:26.898247866 +0200
+@@ -14,7 +14,7 @@ top_builddir = ../../../..
+ include $(top_builddir)/src/Makefile.global
+ 
+ NAME= ecpg
+-SO_MAJOR_VERSION= 6
++SO_MAJOR_VERSION= __SCL_NAME__-6
+ SO_MINOR_VERSION= 4
+ 
+ override CPPFLAGS := -I../include -I$(top_srcdir)/src/interfaces/ecpg/include \
+diff -up postgresql-9.2.4/src/interfaces/ecpg/pgtypeslib/Makefile.major postgresql-9.2.4/src/interfaces/ecpg/pgtypeslib/Makefile
+--- postgresql-9.2.4/src/interfaces/ecpg/pgtypeslib/Makefile.major	2013-05-02 14:34:31.993187086 +0200
++++ postgresql-9.2.4/src/interfaces/ecpg/pgtypeslib/Makefile	2013-05-02 14:36:53.138236134 +0200
+@@ -14,7 +14,7 @@ top_builddir = ../../../..
+ include $(top_builddir)/src/Makefile.global
+ 
+ NAME= pgtypes
+-SO_MAJOR_VERSION= 3
++SO_MAJOR_VERSION= __SCL_NAME__-3
+ SO_MINOR_VERSION= 3
+ 
+ override CPPFLAGS := -I../include -I$(top_srcdir)/src/interfaces/ecpg/include \
+diff -up postgresql-9.2.4/src/interfaces/libpq/Makefile.major postgresql-9.2.4/src/interfaces/libpq/Makefile
+--- postgresql-9.2.4/src/interfaces/libpq/Makefile.major	2013-04-01 20:20:36.000000000 +0200
++++ postgresql-9.2.4/src/interfaces/libpq/Makefile	2013-05-02 14:32:04.496135831 +0200
+@@ -16,7 +16,7 @@ include $(top_builddir)/src/Makefile.glo
+ 
+ # shared library parameters
+ NAME= pq
+-SO_MAJOR_VERSION= 5
++SO_MAJOR_VERSION= __SCL_NAME__-5
+ SO_MINOR_VERSION= 5
+ 
+ override CPPFLAGS :=  -DFRONTEND -DUNSAFE_STAT_OK -I$(srcdir) $(CPPFLAGS) -I$(top_builddir)/src/port -I$(top_srcdir)/src/port

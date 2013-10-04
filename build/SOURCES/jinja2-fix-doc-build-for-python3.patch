@@ -1,0 +1,24 @@
+--- docs/jinjaext.py.orig	2013-01-28 10:46:47.890590120 +0100
++++ docs/jinjaext.py	2013-01-28 10:48:15.057277175 +0100
+@@ -110,10 +110,10 @@
+     def directive(dirname, arguments, options, content, lineno,
+                       content_offset, block_text, state, state_machine):
+         reverse_mapping = {}
+-        for name, func in mapping.iteritems():
++        for name, func in mapping.items():
+             reverse_mapping.setdefault(func, []).append(name)
+         filters = []
+-        for func, names in reverse_mapping.iteritems():
++        for func, names in reverse_mapping.items():
+             aliases = sorted(names, key=lambda x: len(x))
+             name = aliases.pop()
+             filters.append((name, aliases, func))
+@@ -145,7 +145,7 @@
+         doc.append(p + '.. autoclass:: %s(%s)' % (node.__name__, sig), '')
+         if node.abstract:
+             members = []
+-            for key, name in node.__dict__.iteritems():
++            for key, name in node.__dict__.items():
+                 if not key.startswith('_') and \
+                    not hasattr(node.__base__, key) and callable(name):
+                     members.append(key)

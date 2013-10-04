@@ -7,7 +7,7 @@ node "default" {
   package { "mock": ensure => latest }
   package { "rpm-build": ensure => latest }
   package { "fedora-packager": ensure => latest }
-	
+
   file { "/home/vagrant/rpmbuild":
     ensure => directory;
   }
@@ -63,13 +63,13 @@ node "default" {
   }
 
   # Add mock definitions for python, ruby, and scl (the latter is to build the python27-build and ruby193-build packages)
-  
-  file { "/etc/mock/python27-x86_64.cfg": 
+
+  file { "/etc/mock/python27-x86_64.cfg":
     path => "/etc/mock/python27-x86_64.cfg",
     content => template("python27-x86_64.cfg.erb"),
   }
 
-  file { "/etc/mock/ruby193-x86_64.cfg": 
+  file { "/etc/mock/ruby193-x86_64.cfg":
     path => "/etc/mock/ruby193-x86_64.cfg",
     content => template("ruby193-x86_64.cfg.erb"),
   }
@@ -78,6 +78,38 @@ node "default" {
     path => "/etc/mock/scl-x86_64.cfg",
     content => template("scl-x86_64.cfg.erb"),
   }
+
+  file { "/etc/mock/python33-x86_64.cfg":
+    path => "/etc/mock/python33-x86_64.cfg",
+    content => template("python33-x86_64.cfg.erb"),
+  }
+
+  file { "/etc/mock/php54-x86_64.cfg":
+    path => "/etc/mock/php54-x86_64.cfg",
+    content => template("php54-x86_64.cfg.erb"),
+  }
+
+  file { "/etc/mock/perl516-x86_64.cfg":
+    path => "/etc/mock/perl516-x86_64.cfg",
+    content => template("perl516-x86_64.cfg.erb"),
+  }
+
+  file { "/etc/mock/postgres92-x86_64.cfg":
+    path => "/etc/mock/postgres92-x86_64.cfg",
+    content => template("postgres92-x86_64.cfg.erb"),
+  }
+
+  file { "/etc/mock/mysql55-x86_64.cfg":
+    path => "/etc/mock/mysql55-x86_64.cfg",
+    content => template("mysql55-x86_64.cfg.erb"),
+  }
+
+  file { "/etc/mock/node010-x86_64.cfg":
+    path => "/etc/mock/node010-x86_64.cfg",
+    content => template("node010-x86_64.cfg.erb"),
+  }
+
+
 }
 
-  
+

@@ -1,0 +1,148 @@
+From 13716dc35cd0869b98bd30cebbdeb8d48ab07a8b Mon Sep 17 00:00:00 2001
+From: Nicholas Clark <nick@ccl4.org>
+Date: Sat, 14 Apr 2012 15:51:33 +0200
+Subject: [PATCH] Remove PERL_ASYNC_CHECK() from Perl_leave_scope().
+
+PERL_ASYNC_CHECK() was added to Perl_leave_scope() as part of commit
+f410a2119920dd04, which moved signal dispatch from the runloop to
+control flow ops, to mitigate nearly all of the speed cost of safe
+signals.
+
+The assumption was that scope exit was a safe place to dispatch signals.
+However, this is not true, as parts of the regex engine call
+leave_scope(), the regex engine stores some state in per-interpreter
+variables, and code called within signal handlers can change these
+values.
+
+Hence remove the call to PERL_ASYNC_CHECK() from Perl_leave_scope(), and
+add it explicitly in the various OPs which were relying on their call to
+leave_scope() to dispatch any pending signals. Also add a
+PERL_ASYNC_CHECK() to the exit of the runloop, which ensures signals
+still dispatch from S_sortcv() and S_sortcv_stacked(), as well as
+addressing one of the concerns in the commit message of
+f410a2119920dd04:
+
+    Subtle bugs might remain - there might be constructions that enter
+    the runloop (where signals used to be dispatched) but don't contain
+    any PERL_ASYNC_CHECK() calls themselves.
+
+Finally, move the PERL_ASYNC_CHECK(); added by that commit to pp_goto to
+the end of the function, to be consistent with the positioning of all
+other PERL_ASYNC_CHECK() calls - at the beginning or end of OP
+functions, hence just before the return to or just after the call from
+the runloop, and hence effectively at the same point as the previous
+location of PERL_ASYNC_CHECK() in the runloop.
+---
+ dump.c   |  1 +
+ pp_ctl.c | 11 ++++++++++-
+ run.c    |  1 +
+ scope.c  |  2 --
+ 4 files changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/dump.c b/dump.c
+index b238ee0..d770a65 100644
+--- a/dump.c
++++ b/dump.c
+@@ -2118,6 +2118,7 @@ Perl_runops_debug(pTHX)
+ 	}
+     } while ((PL_op = PL_op->op_ppaddr(aTHX)));
+     DEBUG_l(Perl_deb(aTHX_ "leaving RUNOPS level\n"));
++    PERL_ASYNC_CHECK();
+ 
+     TAINT_NOT;
+     return 0;
+diff --git a/pp_ctl.c b/pp_ctl.c
+index fd92efa..6206a25 100644
+--- a/pp_ctl.c
++++ b/pp_ctl.c
+@@ -377,6 +377,7 @@ PP(pp_substcont)
+ 	    TAINT_NOT;
+ 	    LEAVE_SCOPE(cx->sb_oldsave);
+ 	    POPSUBST(cx);
++	    PERL_ASYNC_CHECK();
+ 	    RETURNOP(pm->op_next);
+ 	    /* NOTREACHED */
+ 	}
+@@ -2732,6 +2733,7 @@ PP(pp_next)
+     if (PL_scopestack_ix < inner)
+ 	leave_scope(PL_scopestack[PL_scopestack_ix]);
+     PL_curcop = cx->blk_oldcop;
++    PERL_ASYNC_CHECK();
+     return (cx)->blk_loop.my_op->op_nextop;
+ }
+ 
+@@ -2774,6 +2776,7 @@ PP(pp_redo)
+     LEAVE_SCOPE(oldsave);
+     FREETMPS;
+     PL_curcop = cx->blk_oldcop;
++    PERL_ASYNC_CHECK();
+     return redo_op;
+ }
+ 
+@@ -2978,6 +2981,7 @@ PP(pp_goto)
+ 		PUTBACK;
+ 		(void)(*CvXSUB(cv))(aTHX_ cv);
+ 		LEAVE;
++		PERL_ASYNC_CHECK();
+ 		return retop;
+ 	    }
+ 	    else {
+@@ -3049,6 +3053,7 @@ PP(pp_goto)
+ 			}
+ 		    }
+ 		}
++		PERL_ASYNC_CHECK();
+ 		RETURNOP(CvSTART(cv));
+ 	    }
+ 	}
+@@ -3209,6 +3214,7 @@ PP(pp_goto)
+ 	PL_do_undump = FALSE;
+     }
+ 
++    PERL_ASYNC_CHECK();
+     RETURNOP(retop);
+ }
+ 
+@@ -5129,10 +5135,13 @@ PP(pp_leavewhen)
+ 	    leave_scope(PL_scopestack[PL_scopestack_ix]);
+ 	PL_curcop = cx->blk_oldcop;
+ 
++	PERL_ASYNC_CHECK();
+ 	return cx->blk_loop.my_op->op_nextop;
+     }
+-    else
++    else {
++	PERL_ASYNC_CHECK();
+ 	RETURNOP(cx->blk_givwhen.leave_op);
++    }
+ }
+ 
+ PP(pp_continue)
+diff --git a/run.c b/run.c
+index 7c1d0aa..774852d 100644
+--- a/run.c
++++ b/run.c
+@@ -40,6 +40,7 @@ Perl_runops_standard(pTHX)
+     register OP *op = PL_op;
+     while ((PL_op = op = op->op_ppaddr(aTHX))) {
+     }
++    PERL_ASYNC_CHECK();
+ 
+     TAINT_NOT;
+     return 0;
+diff --git a/scope.c b/scope.c
+index ffd0552..121d1f7 100644
+--- a/scope.c
++++ b/scope.c
+@@ -1168,8 +1168,6 @@ Perl_leave_scope(pTHX_ I32 base)
+     }
+ 
+     PL_tainted = was;
+-
+-    PERL_ASYNC_CHECK();
+ }
+ 
+ void
+-- 
+1.8.1.4
+

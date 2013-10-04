@@ -1,0 +1,24 @@
+commit 51b567b381f11609eb0190a8fda34c91a2d1ab6f
+Author: John Szakmeister <john@szakmeister.net>
+Date:   Sun Nov 11 13:35:24 2012 -0500
+
+    multiprocess: make test a little less racy
+    
+    The other process can start up not long after the module setup and
+    teardown is called.  Add another ellipsis in to cover this case.
+    Note: it's feasible that something could sneak in between the setup and
+    teardown as well, but the failures with Travis haven't shown that to be
+    occurring.
+
+diff --git a/functional_tests/doc_tests/test_multiprocess/multiprocess.rst b/functional_tests/doc_tests/test_multiprocess/multiprocess.rst
+index d463ba0..ca966af 100644
+--- a/functional_tests/doc_tests/test_multiprocess/multiprocess.rst
++++ b/functional_tests/doc_tests/test_multiprocess/multiprocess.rst
+@@ -223,6 +223,7 @@ Then we can run again and see the failures.
+     ...     plugins=[MultiProcess()]) #doctest: +ELLIPSIS
+     setup called
+     teardown called
++    ...
+     test_can_split....
+     ...
+     FAILED (failures=...)

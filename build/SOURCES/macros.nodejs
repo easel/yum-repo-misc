@@ -1,0 +1,38 @@
+# nodejs binary
+%__nodejs %{_bindir}/node
+
+# nodejs library directory
+%nodejs_sitelib %{_prefix}/lib/node_modules
+
+#arch specific library directory
+#for future-proofing only; we don't do multilib
+%nodejs_sitearch %{nodejs_sitelib}
+
+# currently installed nodejs version
+%nodejs_version %(%{__nodejs} -v | sed s/v//)
+
+# symlink dependencies so `npm link` works
+# this should be run in every module's %%install section
+# pass --check to work in the current directory instead of the buildroot
+# pass --no-devdeps to ignore devDependencies when --check is used
+%nodejs_symlink_deps %{_rpmconfigdir}/nodejs010-symlink-deps %{nodejs_sitelib}
+
+# patch package.json to fix a dependency
+# see `man npm-json` for details on writing dependencies for package.json files
+# e.g. `%%nodejs_fixdep frobber` makes any version of frobber do
+#      `%%nodejs_fixdep frobber '>1.0'` requires frobber > 1.0
+#      `%%nodejs_fixdep -r frobber removes the frobber dep
+%nodejs_fixdep %{_rpmconfigdir}/nodejs010-fixdep
+
+# macro to filter unwanted provides from Node.js binary native modules
+%nodejs_default_filter %{?filter_setup: %{expand: \
+%filter_provides_in %{nodejs_sitearch}/.*\\.node$ \
+%filter_setup \
+}}
+
+# macro to invoke the Node.js provides and requires generators
+%nodejs_find_provides_and_requires %{expand: \
+%global _use_internal_dependency_generator 0
+%global __find_provides %{_rpmconfigdir}/nodejs010-provide.sh
+%global __find_requires %{_rpmconfigdir}/nodejs010-require.sh
+}

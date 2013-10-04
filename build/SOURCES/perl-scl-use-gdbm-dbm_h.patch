@@ -1,0 +1,47 @@
+--- perl-5.16.2/Configure.orig	2013-02-07 11:32:14.289079167 +0100
++++ perl-5.16.2/Configure	2013-02-07 13:45:18.211639942 +0100
+@@ -11691,7 +11691,15 @@
+ 
+ case "$d_dbmclose" in
+ $define)
+-	set dbm.h i_dbm
++	: Compatibility location for RedHat 6.x
++	set gdbm/dbm.h i_gdbmdbm
++	eval $inhdr
++	if $test -f /usr/include/gdbm/dbm.h; then
++	    echo '<gdbm/dbm.h> found.'
++	fi
++	i_gdbmdbm="$define"
++	i_dbm="$i_gdbmdbm"
++	set i_dbm
+ 	eval $inhdr
+ 	case "$i_dbm" in
+ 	$define)
+@@ -11699,7 +11707,7 @@
+ 		set i_rpcsvcdbm
+ 		eval $setvar
+ 		;;
+-	*)	set rpcsvc/dbm.h i_rpcsvcdbm
++	*)	set rpcsvc/gdbm/dbm.h i_rpcsvcdbm
+ 		eval $inhdr
+ 		;;
+ 	esac
+@@ -22355,6 +22363,7 @@
+ 		esac
+ 		;;
+ 	ODBM_File|odbm_fil)
++	    echo "ODBM_File ${i_dbm}${i_rpcsvcdbm} ${define}" >&4
+ 		case "${i_dbm}${i_rpcsvcdbm}" in
+ 		*"${define}"*)
+ 		    case "$d_cplusplus" in
+--- perl-5.16.2/ext/ODBM_File/ODBM_File.xs.orig	2013-02-07 14:45:52.259352392 +0100
++++ perl-5.16.2/ext/ODBM_File/ODBM_File.xs	2013-02-07 14:46:14.791908971 +0100
+@@ -5,7 +5,7 @@
+ #include "XSUB.h"
+ 
+ #ifdef I_DBM
+-#  include <dbm.h>
++#  include <gdbm/dbm.h>
+ #else
+ #  ifdef I_RPCSVC_DBM
+ #    include <rpcsvc/dbm.h>

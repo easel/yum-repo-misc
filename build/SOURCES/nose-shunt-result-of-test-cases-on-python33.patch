@@ -1,0 +1,46 @@
+commit 14d76302defb74fab08042e4cc67bb7111106172
+Author: John Szakmeister <john@szakmeister.net>
+Date:   Fri Dec 7 15:32:18 2012 -0500
+
+    Shunt any results of running a test case in Python 3.3.
+    
+    In Python 2.x, running `case(result)` returned `None`.  In Python 3.3,
+    it now returns an object.  As a result of that change, some doctests
+    are failing with Python 3.3.  We don't care about the return value,
+    so let's just discard it by assigning it to an underscore.
+
+diff --git a/nose/plugins/errorclass.py b/nose/plugins/errorclass.py
+index 663dffc..d1540e0 100644
+--- a/nose/plugins/errorclass.py
++++ b/nose/plugins/errorclass.py
+@@ -65,7 +65,7 @@ each step.
+ 
+ Now run the test. TODO is printed.
+ 
+-    >>> case(result) # doctest: +ELLIPSIS
++    >>> _ = case(result) # doctest: +ELLIPSIS
+     runTest (....TestTodo) ... TODO: I need to test something
+ 
+ Errors and failures are empty, but todo has our test:
+diff --git a/nose/plugins/plugintest.py b/nose/plugins/plugintest.py
+index 9eaebb4..5068033 100644
+--- a/nose/plugins/plugintest.py
++++ b/nose/plugins/plugintest.py
+@@ -31,7 +31,7 @@ Here's a simple example with a do-nothing plugin and a composed suite.
+     ...
+     >>> res = unittest.TestResult()
+     >>> case = TestPluginFoo('test_foo')
+-    >>> case(res)
++    >>> _ = case(res)
+     >>> res.errors
+     []
+     >>> res.failures
+@@ -83,7 +83,7 @@ arguments and reads environment variables.
+     ...
+     >>> res = unittest.TestResult()
+     >>> case = TestFancyOutputter('test_fancy_output')
+-    >>> case(res)
++    >>> _ = case(res)
+     >>> res.errors
+     []
+     >>> res.failures

@@ -1,0 +1,20 @@
+--- perl-5.16.3/pod/perlvar.pod.orig	2013-04-26 14:24:18.372682967 +0200
++++ perl-5.16.3/pod/perlvar.pod	2013-04-26 14:25:46.969324030 +0200
+@@ -835,7 +835,7 @@
+ 
+ =item $PREMATCH
+ 
+-=item $`
++=item C<$`>
+ X<$`> X<$PREMATCH> X<${^PREMATCH}>
+ 
+ The string preceding whatever was matched by the last successful
+@@ -867,7 +867,7 @@
+ 
+ =item $POSTMATCH
+ 
+-=item $'
++=item C<$'>
+ X<$'> X<$POSTMATCH> X<${^POSTMATCH}> X<@->
+ 
+ The string following whatever was matched by the last successful

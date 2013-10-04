@@ -1,0 +1,635 @@
+From 9779b7d72d7e727259d9622e02547f3d44274623 Mon Sep 17 00:00:00 2001
+From: "T.C. Hollingsworth" <tchollingsworth@gmail.com>
+Date: Sun, 14 Apr 2013 19:43:55 -0700
+Subject: [PATCH] Revert "cmd-shim@1.1.0"
+
+This reverts commit 42964846bfa74b3a0222d67a6b3b5cb9287d993b.
+---
+ lib/build.js                             |   2 +-
+ node_modules/cmd-shim/.npmignore         |  16 ---
+ node_modules/cmd-shim/.travis.yml        |   4 -
+ node_modules/cmd-shim/LICENSE            |  27 -----
+ node_modules/cmd-shim/README.md          |  42 --------
+ node_modules/cmd-shim/index.js           | 180 -------------------------------
+ node_modules/cmd-shim/package.json       |  28 -----
+ node_modules/cmd-shim/test/00-setup.js   |  34 ------
+ node_modules/cmd-shim/test/basic.js      | 167 ----------------------------
+ node_modules/cmd-shim/test/zz-cleanup.js |  13 ---
+ package.json                             |   6 +-
+ 11 files changed, 3 insertions(+), 516 deletions(-)
+ delete mode 100644 node_modules/cmd-shim/.npmignore
+ delete mode 100644 node_modules/cmd-shim/.travis.yml
+ delete mode 100644 node_modules/cmd-shim/LICENSE
+ delete mode 100644 node_modules/cmd-shim/README.md
+ delete mode 100644 node_modules/cmd-shim/index.js
+ delete mode 100644 node_modules/cmd-shim/package.json
+ delete mode 100644 node_modules/cmd-shim/test/00-setup.js
+ delete mode 100644 node_modules/cmd-shim/test/basic.js
+ delete mode 100644 node_modules/cmd-shim/test/zz-cleanup.js
+
+diff --git a/lib/build.js b/lib/build.js
+index b7ae088..d9deb32 100644
+--- a/lib/build.js
++++ b/lib/build.js
+@@ -16,7 +16,7 @@ var npm = require("./npm.js")
+   , readJson = require("read-package-json")
+   , link = require("./utils/link.js")
+   , linkIfExists = link.ifExists
+-  , cmdShim = require("cmd-shim")
++  , cmdShim = require("./utils/cmd-shim.js")
+   , cmdShimIfExists = cmdShim.ifExists
+   , asyncMap = require("slide").asyncMap
+ 
+diff --git a/node_modules/cmd-shim/.npmignore b/node_modules/cmd-shim/.npmignore
+deleted file mode 100644
+index 69f75d2..0000000
+--- a/node_modules/cmd-shim/.npmignore
++++ /dev/null
+@@ -1,16 +0,0 @@
+-lib-cov
+-*.seed
+-*.log
+-*.csv
+-*.dat
+-*.out
+-*.pid
+-*.gz
+-
+-pids
+-logs
+-results
+-
+-npm-debug.log
+-
+-node_modules
+diff --git a/node_modules/cmd-shim/.travis.yml b/node_modules/cmd-shim/.travis.yml
+deleted file mode 100644
+index 97e4515..0000000
+--- a/node_modules/cmd-shim/.travis.yml
++++ /dev/null
+@@ -1,4 +0,0 @@
+-language: node_js
+-node_js:
+-  - "0.10"
+-  - "0.8"
+\ No newline at end of file
+diff --git a/node_modules/cmd-shim/LICENSE b/node_modules/cmd-shim/LICENSE
+deleted file mode 100644
+index 6e93978..0000000
+--- a/node_modules/cmd-shim/LICENSE
++++ /dev/null
+@@ -1,27 +0,0 @@
+-Copyright (c) Isaac Z. Schlueter ("Author")
+-All rights reserved.
+-
+-The BSD License
+-
+-Redistribution and use in source and binary forms, with or without
+-modification, are permitted provided that the following conditions
+-are met:
+-
+-1. Redistributions of source code must retain the above copyright
+-   notice, this list of conditions and the following disclaimer.
+-
+-2. Redistributions in binary form must reproduce the above copyright
+-   notice, this list of conditions and the following disclaimer in the
+-   documentation and/or other materials provided with the distribution.
+-
+-THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+-PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS
+-BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+-OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+-IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+diff --git a/node_modules/cmd-shim/README.md b/node_modules/cmd-shim/README.md
+deleted file mode 100644
+index fb997d5..0000000
+--- a/node_modules/cmd-shim/README.md
++++ /dev/null
+@@ -1,42 +0,0 @@
+-# cmd-shim
+-
+-The cmd-shim used in npm to create executable scripts on Windows,
+-since symlinks are not suitable for this purpose there.
+-
+-On Unix systems, you should use a symbolic link instead.
+-
+-[![Build Status](https://travis-ci.org/ForbesLindesay/cmd-shim.png?branch=master)](https://travis-ci.org/ForbesLindesay/cmd-shim) [![Dependency Status](https://gemnasium.com/ForbesLindesay/cmd-shim.png)](https://gemnasium.com/ForbesLindesay/cmd-shim)
+-
+-## Installation
+-
+-```
+-npm install cmd-shim
+-```
+-
+-## API
+-
+-### cmdShim(from, to, cb)
+-
+-Create a cmd shim at `to` for the command line program at `from`.
+-e.g.
+-
+-```javascript
+-var cmdShim = require('cmd-shim');
+-cmdShim(__dirname + '/cli.js', '/usr/bin/command-name', function (err) {
+-  if (err) throw err;
+-});
+-```
+-
+-### cmdShim.ifExists(from, to, cb)
+-
+-The same as above, but will just continue if the file does not exist.
+-Source:
+-
+-```javascript
+-function cmdShimIfExists (from, to, cb) {
+-  fs.stat(from, function (er) {
+-    if (er) return cb()
+-    cmdShim(from, to, cb)
+-  })
+-}
+-```
+diff --git a/node_modules/cmd-shim/index.js b/node_modules/cmd-shim/index.js
+deleted file mode 100644
+index 1cfd24e..0000000
+--- a/node_modules/cmd-shim/index.js
++++ /dev/null
+@@ -1,180 +0,0 @@
+-// On windows, create a .cmd file.
+-// Read the #! in the file to see what it uses.  The vast majority
+-// of the time, this will be either:
+-// "#!/usr/bin/env <prog> <args...>"
+-// or:
+-// "#!<prog> <args...>"
+-//
+-// Write a binroot/pkg.bin + ".cmd" file that has this line in it:
+-// @<prog> <args...> %~dp0<target> %*
+-
+-module.exports = cmdShim
+-cmdShim.ifExists = cmdShimIfExists
+-
+-try {
+-  var fs = require("graceful-fs")
+-} catch (e) {
+-  var fs = require("fs")
+-}
+-
+-var mkdir = require("mkdirp")
+-  , path = require("path")
+-  , shebangExpr = /^#\!\s*(?:\/usr\/bin\/env)?\s*([^ \t]+)(.*)$/
+-
+-function cmdShimIfExists (from, to, cb) {
+-  fs.stat(from, function (er) {
+-    if (er) return cb()
+-    cmdShim(from, to, cb)
+-  })
+-}
+-
+-// Try to unlink, but ignore errors.
+-// Any problems will surface later.
+-function rm (path, cb) {
+-  fs.unlink(path, function(er) {
+-    cb()
+-  })
+-}
+-
+-function cmdShim (from, to, cb) {
+-  fs.stat(from, function (er, stat) {
+-    if (er)
+-      return cb(er)
+-
+-    cmdShim_(from, to, cb)
+-  })
+-}
+-
+-function cmdShim_ (from, to, cb) {
+-  var then = times(2, next, cb)
+-  rm(to, then)
+-  rm(to + ".cmd", then)
+-
+-  function next(er) {
+-    writeShim(from, to, cb)
+-  }
+-}
+-
+-function writeShim (from, to, cb) {
+-  // make a cmd file and a sh script
+-  // First, check if the bin is a #! of some sort.
+-  // If not, then assume it's something that'll be compiled, or some other
+-  // sort of script, and just call it directly.
+-  mkdir(path.dirname(to), function (er) {
+-    if (er)
+-      return cb(er)
+-    fs.readFile(from, "utf8", function (er, data) {
+-      if (er) return writeShim_(from, to, null, null, cb)
+-      var firstLine = data.trim().split(/\r*\n/)[0]
+-        , shebang = firstLine.match(shebangExpr)
+-      if (!shebang) return writeShim_(from, to, null, null, cb)
+-      var prog = shebang[1]
+-        , args = shebang[2] || ""
+-      return writeShim_(from, to, prog, args, cb)
+-    })
+-  })
+-}
+-
+-function writeShim_ (from, to, prog, args, cb) {
+-  var shTarget = path.relative(path.dirname(to), from)
+-    , target = shTarget.split("/").join("\\")
+-    , longProg
+-    , shProg = prog && prog.split("\\").join("/")
+-    , shLongProg
+-  shTarget = shTarget.split("\\").join("/")
+-  args = args || ""
+-  if (!prog) {
+-    prog = "\"%~dp0\\" + target + "\""
+-    shProg = "\"$basedir/" + shTarget + "\""
+-    args = ""
+-    target = ""
+-    shTarget = ""
+-  } else {
+-    longProg = "\"%~dp0\\" + prog + ".exe\""
+-    shLongProg = "\"$basedir/" + prog + "\""
+-    target = "\"%~dp0\\" + target + "\""
+-    shTarget = "\"$basedir/" + shTarget + "\""
+-  }
+-
+-  // @IF EXIST "%~dp0\node.exe" (
+-  //   "%~dp0\node.exe" "%~dp0\.\node_modules\npm\bin\npm-cli.js" %*
+-  // ) ELSE (
+-  //   node "%~dp0\.\node_modules\npm\bin\npm-cli.js" %*
+-  // )
+-  var cmd
+-  if (longProg) {
+-    cmd = "@IF EXIST " + longProg + " (\r\n"
+-        + "  " + longProg + " " + args + " " + target + " %*\r\n"
+-        + ") ELSE (\r\n"
+-        + "  " + prog + " " + args + " " + target + " %*\r\n"
+-        + ")"
+-  } else {
+-    cmd = prog + " " + args + " " + target + " %*\r\n"
+-  }
+-
+-  // #!/bin/sh
+-  // basedir=`dirname "$0"`
+-  //
+-  // case `uname` in
+-  //     *CYGWIN*) basedir=`cygpath -w "$basedir"`;;
+-  // esac
+-  //
+-  // if [ -x "$basedir/node.exe" ]; then
+-  //   "$basedir/node.exe" "$basedir/node_modules/npm/bin/npm-cli.js" "$@"
+-  //   ret=$?
+-  // else
+-  //   node "$basedir/node_modules/npm/bin/npm-cli.js" "$@"
+-  //   ret=$?
+-  // fi
+-  // exit $ret
+-
+-  var sh = "#!/bin/sh\n"
+-
+-  if (shLongProg) {
+-    sh = sh
+-        + "basedir=`dirname \"$0\"`\n"
+-        + "\n"
+-        + "case `uname` in\n"
+-        + "    *CYGWIN*) basedir=`cygpath -w \"$basedir\"`;;\n"
+-        + "esac\n"
+-        + "\n"
+-
+-    sh = sh
+-       + "if [ -x "+shLongProg+" ]; then\n"
+-       + "  " + shLongProg + " " + args + " " + shTarget + " \"$@\"\n"
+-       + "  ret=$?\n"
+-       + "else \n"
+-       + "  " + shProg + " " + args + " " + shTarget + " \"$@\"\n"
+-       + "  ret=$?\n"
+-       + "fi\n"
+-       + "exit $ret\n"
+-  } else {
+-    sh = shProg + " " + args + " " + shTarget + " \"$@\"\n"
+-       + "exit $?\n"
+-  }
+-
+-  var then = times(2, next, cb)
+-  fs.writeFile(to + ".cmd", cmd, "utf8", then)
+-  fs.writeFile(to, sh, "utf8", then)
+-  function next () {
+-    chmodShim(to, cb)
+-  }
+-}
+-
+-function chmodShim (to, cb) {
+-  var then = times(2, cb, cb)
+-  fs.chmod(to, 0755, then)
+-  fs.chmod(to + ".cmd", 0755, then)
+-}
+-
+-function times(n, ok, cb) {
+-  var errState = null
+-  return function(er) {
+-    if (!errState) {
+-      if (er)
+-        cb(errState = er)
+-      else if (--n === 0)
+-        ok()
+-    }
+-  }
+-}
+diff --git a/node_modules/cmd-shim/package.json b/node_modules/cmd-shim/package.json
+deleted file mode 100644
+index 4090945..0000000
+--- a/node_modules/cmd-shim/package.json
++++ /dev/null
+@@ -1,28 +0,0 @@
+-{
+-  "name": "cmd-shim",
+-  "version": "1.1.0",
+-  "description": "Used in npm for command line application support",
+-  "scripts": {
+-    "test": "tap test/*.js"
+-  },
+-  "repository": {
+-    "type": "git",
+-    "url": "https://github.com/ForbesLindesay/cmd-shim.git"
+-  },
+-  "license": "BSD",
+-  "optionalDependencies": {
+-    "graceful-fs": "1.2"
+-  },
+-  "dependencies": {
+-    "mkdirp": "~0.3.3",
+-    "graceful-fs": "1.2"
+-  },
+-  "devDependencies": {
+-    "tap": "~0.4.1",
+-    "rimraf": "~2.1.4"
+-  },
+-  "readme": "# cmd-shim\r\n\r\nThe cmd-shim used in npm to create executable scripts on Windows,\r\nsince symlinks are not suitable for this purpose there.\r\n\r\nOn Unix systems, you should use a symbolic link instead.\r\n\r\n[![Build Status](https://travis-ci.org/ForbesLindesay/cmd-shim.png?branch=master)](https://travis-ci.org/ForbesLindesay/cmd-shim) [![Dependency Status](https://gemnasium.com/ForbesLindesay/cmd-shim.png)](https://gemnasium.com/ForbesLindesay/cmd-shim)\r\n\r\n## Installation\r\n\r\n```\r\nnpm install cmd-shim\r\n```\r\n\r\n## API\r\n\r\n### cmdShim(from, to, cb)\r\n\r\nCreate a cmd shim at `to` for the command line program at `from`.\r\ne.g.\r\n\r\n```javascript\r\nvar cmdShim = require('cmd-shim');\r\ncmdShim(__dirname + '/cli.js', '/usr/bin/command-name', function (err) {\r\n  if (err) throw err;\r\n});\r\n```\r\n\r\n### cmdShim.ifExists(from, to, cb)\r\n\r\nThe same as above, but will just continue if the file does not exist.\r\nSource:\r\n\r\n```javascript\r\nfunction cmdShimIfExists (from, to, cb) {\r\n  fs.stat(from, function (er) {\r\n    if (er) return cb()\r\n    cmdShim(from, to, cb)\r\n  })\r\n}\r\n```\r\n",
+-  "readmeFilename": "README.md",
+-  "_id": "cmd-shim@1.1.0",
+-  "_from": "cmd-shim@"
+-}
+diff --git a/node_modules/cmd-shim/test/00-setup.js b/node_modules/cmd-shim/test/00-setup.js
+deleted file mode 100644
+index f2689e6..0000000
+--- a/node_modules/cmd-shim/test/00-setup.js
++++ /dev/null
+@@ -1,34 +0,0 @@
+-var test = require('tap').test
+-var mkdirp = require('mkdirp')
+-var fs = require('fs')
+-var path = require('path')
+-var fixtures = path.resolve(__dirname, 'fixtures')
+-
+-var froms = {
+-  'from.exe': 'exe',
+-  'from.env': '#!/usr/bin/env node\nconsole.log(/hi/)\n',
+-  'from.env.args': '#!/usr/bin/env node --expose_gc\ngc()\n',
+-  'from.sh': '#!/usr/bin/sh\necho hi\n',
+-  'from.sh.args': '#!/usr/bin/sh -x\necho hi\n'
+-}
+-
+-var cmdShim = require('../')
+-
+-test('create fixture', function (t) {
+-  mkdirp(fixtures, function (er) {
+-    if (er)
+-      throw er
+-    t.pass('made dir')
+-    Object.keys(froms).forEach(function (f) {
+-      t.test('write ' + f, function (t) {
+-        fs.writeFile(path.resolve(fixtures, f), froms[f], function (er) {
+-          if (er)
+-            throw er
+-          t.pass('wrote ' + f)
+-          t.end()
+-        })
+-      })
+-    })
+-    t.end()
+-  })
+-})
+diff --git a/node_modules/cmd-shim/test/basic.js b/node_modules/cmd-shim/test/basic.js
+deleted file mode 100644
+index 93da5ea..0000000
+--- a/node_modules/cmd-shim/test/basic.js
++++ /dev/null
+@@ -1,167 +0,0 @@
+-var test = require('tap').test
+-var mkdirp = require('mkdirp')
+-var fs = require('fs')
+-var path = require('path')
+-var fixtures = path.resolve(__dirname, 'fixtures')
+-
+-var cmdShim = require('../')
+-
+-test('no shebang', function (t) {
+-  var from = path.resolve(fixtures, 'from.exe')
+-  var to = path.resolve(fixtures, 'exe.shim')
+-  cmdShim(from, to, function(er) {
+-    if (er)
+-      throw er
+-    t.equal(fs.readFileSync(to, 'utf8'),
+-            "\"$basedir/from.exe\"   \"$@\"\nexit $?\n")
+-    t.equal(fs.readFileSync(to + '.cmd', 'utf8'),
+-            "\"%~dp0\\from.exe\"   %*\r\n")
+-    t.end()
+-  })
+-})
+-
+-test('env shebang', function (t) {
+-  var from = path.resolve(fixtures, 'from.env')
+-  var to = path.resolve(fixtures, 'env.shim')
+-  cmdShim(from, to, function(er) {
+-    if (er)
+-      throw er
+-    console.error('%j', fs.readFileSync(to, 'utf8'))
+-    console.error('%j', fs.readFileSync(to + '.cmd', 'utf8'))
+-
+-    t.equal(fs.readFileSync(to, 'utf8'),
+-            "#!/bin/sh"+
+-            "\nbasedir=`dirname \"$0\"`"+
+-            "\n"+
+-            "\ncase `uname` in"+
+-            "\n    *CYGWIN*) basedir=`cygpath -w \"$basedir\"`;;"+
+-            "\nesac"+
+-            "\n"+
+-            "\nif [ -x \"$basedir/node\" ]; then"+
+-            "\n  \"$basedir/node\"  \"$basedir/from.env\" \"$@\""+
+-            "\n  ret=$?"+
+-            "\nelse "+
+-            "\n  node  \"$basedir/from.env\" \"$@\""+
+-            "\n  ret=$?"+
+-            "\nfi"+
+-            "\nexit $ret"+
+-            "\n")
+-    t.equal(fs.readFileSync(to + '.cmd', 'utf8'),
+-            "@IF EXIST \"%~dp0\\node.exe\" (\r"+
+-            "\n  \"%~dp0\\node.exe\"  \"%~dp0\\from.env\" %*\r"+
+-            "\n) ELSE (\r"+
+-            "\n  node  \"%~dp0\\from.env\" %*\r"+
+-            "\n)")
+-    t.end()
+-  })
+-})
+-
+-test('env shebang with args', function (t) {
+-  var from = path.resolve(fixtures, 'from.env.args')
+-  var to = path.resolve(fixtures, 'env.args.shim')
+-  cmdShim(from, to, function(er) {
+-    if (er)
+-      throw er
+-    console.error('%j', fs.readFileSync(to, 'utf8'))
+-    console.error('%j', fs.readFileSync(to + '.cmd', 'utf8'))
+-
+-    t.equal(fs.readFileSync(to, 'utf8'),
+-            "#!/bin/sh"+
+-            "\nbasedir=`dirname \"$0\"`"+
+-            "\n"+
+-            "\ncase `uname` in"+
+-            "\n    *CYGWIN*) basedir=`cygpath -w \"$basedir\"`;;"+
+-            "\nesac"+
+-            "\n"+
+-            "\nif [ -x \"$basedir/node\" ]; then"+
+-            "\n  \"$basedir/node\"  --expose_gc \"$basedir/from.env.args\" \"$@\""+
+-            "\n  ret=$?"+
+-            "\nelse "+
+-            "\n  node  --expose_gc \"$basedir/from.env.args\" \"$@\""+
+-            "\n  ret=$?"+
+-            "\nfi"+
+-            "\nexit $ret"+
+-            "\n")
+-    t.equal(fs.readFileSync(to + '.cmd', 'utf8'),
+-            "@IF EXIST \"%~dp0\\node.exe\" (\r"+
+-            "\n  \"%~dp0\\node.exe\"  --expose_gc \"%~dp0\\from.env.args\" %*\r"+
+-            "\n) ELSE (\r"+
+-            "\n  node  --expose_gc \"%~dp0\\from.env.args\" %*\r"+
+-            "\n)")
+-    t.end()
+-  })
+-})
+-
+-test('explicit shebang', function (t) {
+-  var from = path.resolve(fixtures, 'from.sh')
+-  var to = path.resolve(fixtures, 'sh.shim')
+-  cmdShim(from, to, function(er) {
+-    if (er)
+-      throw er
+-    console.error('%j', fs.readFileSync(to, 'utf8'))
+-    console.error('%j', fs.readFileSync(to + '.cmd', 'utf8'))
+-
+-    t.equal(fs.readFileSync(to, 'utf8'),
+-            "#!/bin/sh" +
+-            "\nbasedir=`dirname \"$0\"`" +
+-            "\n" +
+-            "\ncase `uname` in" +
+-            "\n    *CYGWIN*) basedir=`cygpath -w \"$basedir\"`;;" +
+-            "\nesac" +
+-            "\n" +
+-            "\nif [ -x \"$basedir//usr/bin/sh\" ]; then" +
+-            "\n  \"$basedir//usr/bin/sh\"  \"$basedir/from.sh\" \"$@\"" +
+-            "\n  ret=$?" +
+-            "\nelse " +
+-            "\n  /usr/bin/sh  \"$basedir/from.sh\" \"$@\"" +
+-            "\n  ret=$?" +
+-            "\nfi" +
+-            "\nexit $ret" +
+-            "\n")
+-
+-    t.equal(fs.readFileSync(to + '.cmd', 'utf8'),
+-            "@IF EXIST \"%~dp0\\/usr/bin/sh.exe\" (\r" +
+-            "\n  \"%~dp0\\/usr/bin/sh.exe\"  \"%~dp0\\from.sh\" %*\r" +
+-            "\n) ELSE (\r" +
+-            "\n  /usr/bin/sh  \"%~dp0\\from.sh\" %*\r" +
+-            "\n)")
+-    t.end()
+-  })
+-})
+-
+-test('explicit shebang with args', function (t) {
+-  var from = path.resolve(fixtures, 'from.sh.args')
+-  var to = path.resolve(fixtures, 'sh.args.shim')
+-  cmdShim(from, to, function(er) {
+-    if (er)
+-      throw er
+-    console.error('%j', fs.readFileSync(to, 'utf8'))
+-    console.error('%j', fs.readFileSync(to + '.cmd', 'utf8'))
+-
+-    t.equal(fs.readFileSync(to, 'utf8'),
+-            "#!/bin/sh" +
+-            "\nbasedir=`dirname \"$0\"`" +
+-            "\n" +
+-            "\ncase `uname` in" +
+-            "\n    *CYGWIN*) basedir=`cygpath -w \"$basedir\"`;;" +
+-            "\nesac" +
+-            "\n" +
+-            "\nif [ -x \"$basedir//usr/bin/sh\" ]; then" +
+-            "\n  \"$basedir//usr/bin/sh\"  -x \"$basedir/from.sh.args\" \"$@\"" +
+-            "\n  ret=$?" +
+-            "\nelse " +
+-            "\n  /usr/bin/sh  -x \"$basedir/from.sh.args\" \"$@\"" +
+-            "\n  ret=$?" +
+-            "\nfi" +
+-            "\nexit $ret" +
+-            "\n")
+-
+-    t.equal(fs.readFileSync(to + '.cmd', 'utf8'),
+-            "@IF EXIST \"%~dp0\\/usr/bin/sh.exe\" (\r" +
+-            "\n  \"%~dp0\\/usr/bin/sh.exe\"  -x \"%~dp0\\from.sh.args\" %*\r" +
+-            "\n) ELSE (\r" +
+-            "\n  /usr/bin/sh  -x \"%~dp0\\from.sh.args\" %*\r" +
+-            "\n)")
+-    t.end()
+-  })
+-})
+diff --git a/node_modules/cmd-shim/test/zz-cleanup.js b/node_modules/cmd-shim/test/zz-cleanup.js
+deleted file mode 100644
+index 47b7899..0000000
+--- a/node_modules/cmd-shim/test/zz-cleanup.js
++++ /dev/null
+@@ -1,13 +0,0 @@
+-var test = require('tap').test
+-var path = require('path')
+-var fixtures = path.resolve(__dirname, 'fixtures')
+-var rimraf = require('rimraf')
+-
+-test('cleanup', function(t) {
+-  rimraf(fixtures, function(er) {
+-    if (er)
+-      throw er
+-    t.pass('cleaned up')
+-    t.end()
+-  })
+-})
+diff --git a/package.json b/package.json
+index b4c704d..90f699d 100644
+--- a/package.json
++++ b/package.json
+@@ -69,8 +69,7 @@
+     "once": "~1.1.1",
+     "npmconf": "0",
+     "opener": "~1.3.0",
+-    "chmodr": "~0.1.0",
+-    "cmd-shim": "~1.1.0"
++    "chmodr": "~0.1.0"
+   },
+   "bundleDependencies": [
+     "semver",
+@@ -108,8 +107,7 @@
+     "once",
+     "npmconf",
+     "opener",
+-    "chmodr",
+-    "cmd-shim"
++    "chmodr"
+   ],
+   "devDependencies": {
+     "ronn": "~0.3.6",
+-- 
+1.8.2
+

@@ -1,0 +1,78 @@
+From 316518b545904d368d703005f1622fde03349567 Mon Sep 17 00:00:00 2001
+From: Father Chrysostomos <sprout@cpan.org>
+Date: Fri, 21 Sep 2012 22:01:19 -0700
+Subject: [PATCH] Free iterator when freeing tied hash
+
+The current iterator was leaking when a tied hash was freed or
+undefined.
+
+Since we already have a mechanism, namely HvLAZYDEL, for freeing
+HvEITER when not referenced elsewhere, we can use that.
+
+Petr Pisar: Ported to 5.16.3.
+---
+ hv.c          |  3 +++
+ t/op/svleak.t | 15 ++++++++++++++-
+ 2 files changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/hv.c b/hv.c
+index a031703..3c35341 100644
+--- a/hv.c
++++ b/hv.c
+@@ -2346,6 +2346,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
+             if (entry) {
+                 sv_setsv(key, HeSVKEY_force(entry));
+                 SvREFCNT_dec(HeSVKEY(entry));       /* get rid of previous key */
++		HeSVKEY_set(entry, NULL);
+             }
+             else {
+                 char *k;
+@@ -2353,6 +2354,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
+ 
+                 /* one HE per MAGICAL hash */
+                 iter->xhv_eiter = entry = new_HE(); /* HvEITER(hv) = new_HE() */
++		HvLAZYDEL_on(hv); /* make sure entry gets freed */
+                 Zero(entry, 1, HE);
+                 Newxz(k, HEK_BASESIZE + sizeof(const SV *), char);
+                 hek = (HEK*)k;
+@@ -2369,6 +2371,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
+             Safefree(HeKEY_hek(entry));
+             del_HE(entry);
+             iter->xhv_eiter = NULL; /* HvEITER(hv) = NULL */
++	    HvLAZYDEL_off(hv);
+             return NULL;
+         }
+     }
+diff --git a/t/op/svleak.t b/t/op/svleak.t
+index 6cfee2e..2f09af3 100644
+--- a/t/op/svleak.t
++++ b/t/op/svleak.t
+@@ -13,7 +13,7 @@ BEGIN {
+ 	or skip_all("XS::APItest not available");
+ }
+ 
+-plan tests => 22;
++plan tests => 23;
+ 
+ # run some code N times. If the number of SVs at the end of loop N is
+ # greater than (N-1)*delta at the end of loop 1, we've got a leak
+@@ -163,3 +163,16 @@ leak(2,0,sub { !$^V }, '[perl #109762] version object in boolean context');
+ 
+ # [perl #114764] Attributes leak scalars
+ leak(2, 0, sub { eval 'my $x : shared' }, 'my $x :shared used to leak');
++
++# Tied hash iteration was leaking if the hash was freed before itera-
++# tion was over.
++package t {
++    sub TIEHASH { bless [] }
++    sub FIRSTKEY { 0 }
++}
++leak(2, 0, sub {
++    my $h = {};
++    tie %$h, t;
++    each %$h;
++    undef $h;
++}, 'tied hash iteration does not leak');
+-- 
+1.8.1.4
+
