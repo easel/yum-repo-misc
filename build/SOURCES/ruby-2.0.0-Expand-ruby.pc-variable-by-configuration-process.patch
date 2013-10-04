@@ -1,0 +1,35 @@
+From bf4959bc763167b2245a5f4c699fcb72afead5a5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADt=20Ondruch?= <vondruch@redhat.com>
+Date: Fri, 18 Jan 2013 15:51:49 +0100
+Subject: [PATCH] Expand ruby.pc variable by configuration process.
+
+---
+ template/ruby.pc.in | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/template/ruby.pc.in b/template/ruby.pc.in
+index 2d6716c..25e42f3 100644
+--- a/template/ruby.pc.in
++++ b/template/ruby.pc.in
+@@ -25,12 +25,12 @@ LIBS=@LIBS@
+ DLDFLAGS=@DLDFLAGS@
+ ruby=${bindir}/${RUBY_INSTALL_NAME}@EXEEXT@
+ rubylibprefix=@rubylibprefix@
+-rubylibdir=${rubylibprefix}/${ruby_version}
+-vendordir=${rubylibprefix}/vendor_ruby
+-sitedir=${rubylibprefix}/site_ruby
+-rubyarchdir=${rubylibdir}/${arch}
+-vendorarchdir=${vendordir}/${sitearch}
+-sitearchdir=${sitedir}/${sitearch}
++rubylibdir=@rubylibprefix@
++vendordir=@vendordir@
++sitedir=@sitedir@
++rubyarchdir=@archdir@
++vendorarchdir=@vendorarchdir@
++sitearchdir=@sitearchdir@
+ rubyhdrdir=@rubyhdrdir@
+ vendorhdrdir=@vendorhdrdir@
+ sitehdrdir=@sitehdrdir@
+-- 
+1.8.0.2
+

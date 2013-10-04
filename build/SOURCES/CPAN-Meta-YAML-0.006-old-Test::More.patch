@@ -1,0 +1,10 @@
+diff -up CPAN-Meta-YAML-0.006/xt/release/test-version.t.orig CPAN-Meta-YAML-0.006/xt/release/test-version.t
+--- CPAN-Meta-YAML-0.006/xt/release/test-version.t.orig	2012-02-07 01:51:53.000000000 +0000
++++ CPAN-Meta-YAML-0.006/xt/release/test-version.t	2012-02-07 11:48:13.912695104 +0000
+@@ -8,5 +8,5 @@ use Test::Requires {
+     'Test::Version' => 0.04,
+ };
+ 
++plan tests => 2;
+ version_all_ok;
+-done_testing;

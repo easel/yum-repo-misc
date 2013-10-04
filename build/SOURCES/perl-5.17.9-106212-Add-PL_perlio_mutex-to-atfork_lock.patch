@@ -1,0 +1,48 @@
+From 4da80956418bbe1fdc23cad0b1cbb24cd7b87609 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Patrik=20H=C3=A4gglund?= <patrik.h.hagglund@ericsson.com>
+Date: Sat, 2 Feb 2013 20:21:05 +0100
+Subject: [PATCH] PATCH [perl #106212] Add PL_perlio_mutex to
+ atfork_lock/unlock
+
+Using threads + fork() on Linux, and IO operations in the threads, the
+PL_perlio_mutex may be left in a locked state at the call of fork(),
+potentially leading to deadlock in the child process at subsequent IO
+operations. (Threads are pre-empted and not continued in the child
+process after the fork.)
+
+Therefore, ensure that the PL_perlio_mutex is unlocked in the child
+process, right after fork(), by using atfork_lock/unlock.
+
+(The RT text gives ways to reproduce the problem, but are not easily
+added to Perl's test suite)
+---
+ util.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/util.c b/util.c
+index 5c695b8..75381f1 100644
+--- a/util.c
++++ b/util.c
+@@ -2798,6 +2798,9 @@ Perl_atfork_lock(void)
+    dVAR;
+ #if defined(USE_ITHREADS)
+     /* locks must be held in locking order (if any) */
++#  ifdef USE_PERLIO
++    MUTEX_LOCK(&PL_perlio_mutex);
++#  endif
+ #  ifdef MYMALLOC
+     MUTEX_LOCK(&PL_malloc_mutex);
+ #  endif
+@@ -2812,6 +2815,9 @@ Perl_atfork_unlock(void)
+     dVAR;
+ #if defined(USE_ITHREADS)
+     /* locks must be released in same order as in atfork_lock() */
++#  ifdef USE_PERLIO
++    MUTEX_UNLOCK(&PL_perlio_mutex);
++#  endif
+ #  ifdef MYMALLOC
+     MUTEX_UNLOCK(&PL_malloc_mutex);
+ #  endif
+-- 
+1.8.1.4
+

@@ -1,0 +1,21 @@
+commit 9e9cf47c81dc3ecae451b4224168ca6bab2cf701
+Author: Armin Ronacher <armin.ronacher@active-4.com>
+Date:   Sun Sep 16 08:26:31 2012 +0900
+
+    Added filesize part to the module compiler.  This fixes #131 for 3.3 and later
+
+diff --git a/jinja2/environment.py b/jinja2/environment.py
+index ebb5454..130f9a1 100644
+--- a/jinja2/environment.py
++++ b/jinja2/environment.py
+@@ -570,6 +570,10 @@ class Environment(object):
+             py_header = imp.get_magic() + \
+                 u'\xff\xff\xff\xff'.encode('iso-8859-15')
+ 
++            # Python 3.3 added a source filesize to the header
++            if sys.version_info >= (3, 3):
++                py_header += '\x00\x00\x00\x00'
++
+         def write_file(filename, data, mode):
+             if zip:
+                 info = ZipInfo(filename)

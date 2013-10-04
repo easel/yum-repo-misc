@@ -6,7 +6,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1
-Release: 6%{?dist}
+Release: 11%{?dist}
 License: GPLv2+
 %if 0%{?install_scl}
 Requires: %{scl_prefix}rubygem-therubyracer
@@ -35,9 +35,10 @@ Package shipping essential configuration macros to build %scl Software Collectio
 rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_scl_scripts}/root
 cat >> %{buildroot}%{_scl_scripts}/enable << EOF
-export PATH=%{_bindir}:\$PATH
-export LD_LIBRARY_PATH=%{_libdir}:\$LD_LIBRARY_PATH
-export MANPATH=%{_mandir}:\$MANPATH
+export PATH=%{_bindir}\${PATH:+:\${PATH}}
+export LD_LIBRARY_PATH=%{_libdir}\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
+export MANPATH=%{_mandir}:\${MANPATH}
+export PKG_CONFIG_PATH=%{_libdir}/pkgconfig\${PKG_CONFIG_PATH:+:\${PKG_CONFIG_PATH}}
 EOF
 %scl_install
 
@@ -50,6 +51,19 @@ EOF
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %changelog
+* Thu May 23 2013 Vít Ondruch <vondruch@redhat.com> - 1-11
+- Correctly replace man search path.
+- Resolves: rhbz#966394
+
+* Mon Apr 29 2013 Vít Ondruch <vondruch@redhat.com> - 1-10
+- Properly expand empty variables (rhbz#957209).
+
+* Thu Apr 25 2013 Vít Ondruch <vondruch@redhat.com> - 1-9
+- Configure paths for pkg-config.
+
+* Mon Apr 08 2013 Vít Ondruch <vondruch@redhat.com> - 1-8
+- Fix for CVE-2013-1945 - insecure LD_LIBRARY_PATH (rhbz#949031).
+
 * Wed Nov 14 2012 Bohuslav Kabrda <bkabrda@redhat.com> - 1-6
 - Rebuilt for PPC.
 

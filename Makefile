@@ -1,6 +1,6 @@
 #!/bin/bash
 DISTROS=/vagrant/epel/5 /vagrant/epel/6
-ARCHES=SRPMS x86_64 i386
+ARCHES=SRPMS x86_64 i386 noarch
 
 default: default
 
@@ -22,8 +22,10 @@ use-gh-pages:
 .PHONY: move
 move: use-gh-pages
 	mv build/RPMS/*el5*x86_64.rpm epel/5/x86_64/
+	mv build/RPMS/*el5*src.rpm epel/5/noarch/
 	mv build/RPMS/*el5*src.rpm epel/5/SRPMS/
 	mv build/RPMS/*el6*x86_64.rpm epel/6/x86_64/
+	mv build/RPMS/*el6*src.rpm epel/6/noarch/
 	mv build/RPMS/*el6*src.rpm epel/6/SRPMS/
 
 

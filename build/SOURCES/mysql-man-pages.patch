@@ -1,0 +1,1013 @@
+# Amalgamation of patches to various mysql man pages
+
+# ===== mysqladmin manual page =====
+
+diff -up mysql-5.5.31/man/mysqladmin.1.broken mysql-5.5.31/man/mysqladmin.1
+--- mysql-5.5.31/man/mysqladmin.1.broken	2013-05-20 14:47:56.719753790 +0200
++++ mysql-5.5.31/man/mysqladmin.1	2013-05-20 17:00:32.683619252 +0200
+@@ -689,6 +689,21 @@ Compress all information sent between th
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqladmin: connect-timeout option
++.\" connect-timeout option: mysqladmin
++\fB\-\-connect-timeout=\fR\fB\fItimeout\fR\fR
++.sp
++Equivalent to \fB\-\-connect_timeout\fR, see the end of this section\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqladmin: count option
+ .\" count option: mysqladmin
+ \fB\-\-count=\fR\fB\fIN\fR\fR,
+@@ -793,6 +808,37 @@ Section\ \&10.5, \(lqCharacter Set Confi
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqladmin: defaults-extra-file option
++.\" defaults-extra-file option: mysqladmin
++\fB\-\-defaults\-extra\-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from after the global defaults files has been read\&.
++Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqladmin: defaults-file option
++.\" defaults-file option: mysqladmin
++\fB\-\-defaults\-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from, override global defaults files\&. Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqladmin: enable-cleartext-plugin option
+ .\" enable-cleartext-plugin option: mysqladmin
+ \fB\-\-enable\-cleartext\-plugin\fR
+@@ -861,6 +907,21 @@ Suppress the warning beep that is emitte
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqladmin: no-defaults option
++.\" no-defaults option: mysqladmin
++\fB\-\-no\-defaults\fR
++.sp
++Do not read default options from any option file\&. This must be given as the first argument\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqladmin: password option
+ .\" password option: mysqladmin
+ \fB\-\-password[=\fR\fB\fIpassword\fR\fR\fB]\fR,
+@@ -944,6 +1005,21 @@ The TCP/IP port number to use for the co
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqladmin: print-defaults option
++.\" print-defaults option: mysqladmin
++\fB\-\-print\-defaults\fR
++.sp
++Print the program argument list and exit\&. This must be given as the first argument\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqladmin: protocol option
+ .\" protocol option: mysqladmin
+ \fB\-\-protocol={TCP|SOCKET|PIPE|MEMORY}\fR
+@@ -973,6 +1049,21 @@ command\&.
+ .RE
+ .sp
+ .RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqladmin: shutdown-timeout option
++.\" shutdown-timeout option: mysqladmin
++\fB\-\-shutdown\-timeout\fR\fB\fItimeout\fR\fR
++.sp
++Equivalent of \fB\-\-shutdown_timeout\fR, see the end of this section\&.
++.RE
++.sp
++.RS 4
+ .ie n \{\
+ \h'-04'\(bu\h'+03'\c
+ .\}
+
+# ===== mysqlbinlog manual page =====
+
+diff -up mysql-5.5.31/man/mysqlbinlog.1.broken mysql-5.5.31/man/mysqlbinlog.1
+--- mysql-5.5.31/man/mysqlbinlog.1.broken	2013-05-22 15:58:21.443002108 +0200
++++ mysql-5.5.31/man/mysqlbinlog.1	2013-05-22 16:07:06.426078577 +0200
+@@ -599,6 +599,7 @@ privilege\&.
+ \fB\-F\fR
+ .sp
+ Read binary log files even if they are open or were not closed properly\&.
++Enabled by default, use \fB\-\-skip\-force\-if\-open\fR to disable\&.
+ .RE
+ .sp
+ .RS 4
+@@ -708,6 +709,22 @@ entries in the log\&.
+ .RE
+ .sp
+ .RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqlbinlog: open-files-limit option
++.\" open-files-limit option: mysqlbinlog
++\fB\-\-open\-files\-limit=\fR\fB\fINUM\fR\fR
++.sp
++Sets the open_files_limit variable, which is used to reserve file descriptors for
++\fBmysqlbinlog\fR\&.
++.RE
++.sp
++.RS 4
+ .ie n \{\
+ \h'-04'\(bu\h'+03'\c
+ .\}
+
+# ===== mysqlconfig manual page =====
+
+diff -up mysql-5.5.30/man/mysql_config.1.broken mysql-5.5.30/man/mysql_config.1
+--- mysql-5.5.30/man/mysql_config.1.broken	2013-05-13 14:35:55.454290660 +0200
++++ mysql-5.5.30/man/mysql_config.1	2013-05-13 14:36:09.529321164 +0200
+@@ -176,6 +176,22 @@ The default Unix socket file, defined wh
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysql_config: variable option
++.\" variable option: mysql_config
++\fB\-\-variable=VAR\fR
++.sp
++Path to MySQL include, library and plugin directories\&. \fBVAR\fR is one of
++`pkgincludedir`, `pkglibdir` and `plugindir`, respectively\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysql_config: version option
+ .\" version option: mysql_config
+ \fB\-\-version\fR
+
+# ===== mysqldump manual page =====
+
+diff -up mysql-5.5.31/man/mysqldump.1.broken mysql-5.5.31/man/mysqldump.1
+--- mysql-5.5.31/man/mysqldump.1.broken	2013-05-23 11:37:22.024143349 +0200
++++ mysql-5.5.31/man/mysqldump.1	2013-05-23 11:54:50.678308059 +0200
+@@ -611,7 +611,8 @@ Compress all information sent between th
+ .\}
+ .\" mysqldump: create-options option
+ .\" create-options option: mysqldump
+-\fB\-\-create\-options\fR
++\fB\-\-create\-options\fR,
++\fB\-a\fR
+ .sp
+ Include all MySQL\-specific table options in the
+ CREATE TABLE
+@@ -738,6 +739,38 @@ latin1\&.
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqldump: defaults-extra-file option
++.\" defaults-extra-file option: mysqldump
++\fB\-\-defaults\-extra\-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from after the global defaults files has been read\&.
++Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqldump: defaults-file option
++.\" defaults-file option: mysqldump
++\fB\-\-defaults\-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from, override global defaults files\&.
++Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqldump: delayed-insert option
+ .\" delayed-insert option: mysqldump
+ \fB\-\-delayed\-insert\fR
+@@ -1400,6 +1433,36 @@ to point the slave to the correct master
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqldump: max-allowed-packet option
++.\" max-allowed-packet option: mysqldump
++\fB\-\-max\-allowed\-packet=\fR\fB\fIlength\fR\fR
++.sp
++Sets the maximum packet length to send to or recieve from server\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqldump: net-buffer-length option
++.\" net-buffer-length option: mysqldump
++\fB\-\-net\-buffer\-length=\fR\fB\fIlength\fR\fR
++.sp
++Sets the buffer size for TCP/IP and socket communication\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqldump: no-autocommit option
+ .\" no-autocommit option: mysqldump
+ \fB\-\-no\-autocommit\fR
+@@ -1500,6 +1563,21 @@ statement for the table (for example, to
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqldump: no-defaults option
++.\" no-defaults option: mysqldump
++\fB\-\-no\-defaults\fR
++.sp
++Do not read default options from any option file\&. This must be given as the first argument\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqldump: no-set-names option
+ .\" no-set-names option: mysqldump
+ \fB\-\-no\-set\-names\fR,
+@@ -1660,6 +1738,21 @@ The TCP/IP port number to use for the co
+ .RE
+ .sp
+ .RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqldump: print-defaults option
++.\" print-defaults option: mysqldump
++\fB\-\-print\-defaults\fR
++.sp
++Print the program argument list and exit\&. This must begiven as the first argument\&.
++.RE
++.sp
++.RS 4
+ .ie n \{\
+ \h'-04'\(bu\h'+03'\c
+ .\}
+
+# ===== mysqlcheck manual page =====
+
+diff -up mysql-5.5.31/man/mysqlcheck.1.broken mysql-5.5.31/man/mysqlcheck.1
+--- mysql-5.5.31/man/mysqlcheck.1.broken	2013-05-23 09:42:15.396673331 +0200
++++ mysql-5.5.31/man/mysqlcheck.1	2013-05-23 10:09:00.702410709 +0200
+@@ -490,6 +490,38 @@ Section\ \&10.5, \(lqCharacter Set Confi
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqlcheck: defaults-extra-file option
++.\" defaults-extra-file option: mysqlcheck
++\fB\-\-defaults\-extra\-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from after the global defaults files has been read\&.
++Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqlcheck: defaults-file option
++.\" defaults-file option: mysqlcheck
++\fB\-\-defaults\-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from, override global defaults files\&.
++Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqlcheck: extended option
+ .\" extended option: mysqlcheck
+ \fB\-\-extended\fR,
+@@ -622,6 +654,21 @@ operation\&. This finds only 99\&.99% of
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqlcheck: no-defaults option
++.\" no-defaults option: mysqlcheck
++\fB\-\-no\-defaults\fR
++.sp
++Do not read default options from any option file\&. This must be given as the first argument\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqlcheck: optimize option
+ .\" optimize option: mysqlcheck
+ \fB\-\-optimize\fR,
+@@ -714,6 +761,22 @@ The TCP/IP port number to use for the co
+ .RE
+ .sp
+ .RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqlcheck: print-defaults option
++.\" print-defaults option: mysqlcheck
++\fB\-\-print\-defaults\fR
++.sp
++Print the program argument list and exit\&.
++This must be given as the first argument\&.
++.RE
++.sp
++.RS 4
+ .ie n \{\
+ \h'-04'\(bu\h'+03'\c
+ .\}
+
+# ===== mysqlimport manual page =====
+
+diff -up mysql-5.5.31/man/mysqlimport.1.broken mysql-5.5.31/man/mysqlimport.1
+--- mysql-5.5.31/man/mysqlimport.1.broken	2013-05-28 12:29:42.287578311 +0200
++++ mysql-5.5.31/man/mysqlimport.1	2013-05-28 12:37:56.069749824 +0200
+@@ -264,10 +264,42 @@ This option was added in MySQL 5\&.5\&.1
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqlimport: defaults-extra-file option
++.\" defaults-extra-file option: mysqlimport
++\fB\-\-defaults\-extra\-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from after the global defaults files has been
++read\&.  Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqlimport: defaults-file option
++.\" defaults-file option: mysqlimport
++\fB\-\-defaults\-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from, override global defaults files\&.
++Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqlimport: delete option
+ .\" delete option: mysqlimport
+ \fB\-\-delete\fR,
+-\fB\-D\fR
++\fB\-d\fR
+ .sp
+ Empty the table before importing the text file\&.
+ .RE
+@@ -449,6 +481,22 @@ MERGE)\&.
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqlimport: no-defaults option
++.\" no-defaults option: mysqlimport
++\fB\-\-no\-defaults\fR
++.sp
++Do not read default options from any option file\&. This must be given as the
++first argument\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqlimport: password option
+ .\" password option: mysqlimport
+ \fB\-\-password[=\fR\fB\fIpassword\fR\fR\fB]\fR,
+@@ -525,6 +573,22 @@ The TCP/IP port number to use for the co
+ .RE
+ .sp
+ .RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqlimport: print-defaults option
++.\" print-defaults option: mysqlimport
++\fB\-\-print\-defaults\fR
++.sp
++Print the program argument list and exit\&.
++This must be given as the first argument\&.
++.RE
++.sp
++.RS 4
+ .ie n \{\
+ \h'-04'\(bu\h'+03'\c
+ .\}
+
+# ===== mysql manual page =====
+
+diff -up mysql-5.5.30/man/mysql.1.broken mysql-5.5.30/man/mysql.1
+--- mysql-5.5.30/man/mysql.1.broken	2013-01-16 08:35:25.000000000 +0100
++++ mysql-5.5.30/man/mysql.1	2013-05-09 16:50:05.520483885 +0200
+@@ -135,7 +135,8 @@ Section\ \&4.2.3.4, \(lqCommand-Line Opt
+ .\" mysql: help option
+ .\" help option: mysql
+ \fB\-\-help\fR,
+-\fB\-?\fR
++\fB\-?\fR,
++\fB\-I\fR
+ .sp
+ Display a help message and exit\&.
+ .RE
+@@ -311,6 +312,21 @@ Compress all information sent between th
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysql: connect-timeout option
++.\" connect-timeout option: mysql
++\fB\-\-connect\-timeout=\fR\fB\fIseconds\fR\fR
++.sp
++Set the time for connection timeout in seconds\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysql: database option
+ .\" database option: mysql
+ \fB\-\-database=\fR\fB\fIdb_name\fR\fR,
+@@ -424,6 +440,37 @@ Section\ \&10.5, \(lqCharacter Set Confi
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysql: defaults-file option
++.\" defaults-file option: mysql
++\fB\-\-defaults-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from, override global defaults files\&. Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysql: defaults-extra-file option
++.\" defaults-extra-file option: mysql
++\fB\-\-defaults-extra-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from after the global defaults files has been read\&.
++Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysql: delimiter option
+ .\" delimiter option: mysql
+ \fB\-\-delimiter=\fR\fB\fIstr\fR\fR
+@@ -623,6 +670,36 @@ has no effect if the server does not als
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysql: max-allowed-packet option
++.\" max-allowed-packet option: mysql
++\fB\-\-max\-allowed\-packet=\fR\fB\fInum\fR\fR
++.sp
++Specify the maximum packet length to send to or recieve form server\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysql: max-join-size option
++.\" max-join-size option: mysql
++\fB\-\-max\-join\-size=\fR\fB\fInum\fR\fR
++.sp
++Set the automatic limit for rows in a join when using \fB\-\-safe\-updates\fR\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysql: named-commands option
+ .\" named-commands option: mysql
+ \fB\-\-named\-commands\fR,
+@@ -648,13 +725,28 @@ the section called \(lqMYSQL COMMANDS\(r
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysql: net-buffer-length option
++.\" net-buffer-length option: mysql
++\fB\-\-net\-buffer\-lenght=\fR\fB\fIsize\fR\fR
++.sp
++Set the buffer size for TCP/IP and socket communication\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysql: no-auto-rehash option
+ .\" no-auto-rehash option: mysql
+ \fB\-\-no\-auto\-rehash\fR,
+ \fB\-A\fR
+ .sp
+ This has the same effect as
+-\fB\-skip\-auto\-rehash\fR\&. See the description for
++\fB\-\-skip\-auto\-rehash\fR\&. See the description for
+ \fB\-\-auto\-rehash\fR\&.
+ .RE
+ .sp
+@@ -682,6 +774,21 @@ Do not beep when errors occur\&.
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysql: no-defaults option
++.\" no-defaults option: mysql
++\fB\-\-no\-defaults\fR
++.sp
++Do not read default options from any option file\&. This must be given as the first argument\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysql: no-named-commands option
+ .\" no-named-commands option: mysql
+ \fB\-\-no\-named\-commands\fR,
+@@ -951,6 +1058,21 @@ The TCP/IP port number to use for the co
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysql: print-defaults option
++.\" print-defaults option: mysql
++\fB\-\-print\-defaults\fR
++.sp
++Print the program argument list and exit\&. This must be given as the first argument\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysql: prompt option
+ .\" prompt option: mysql
+ \fB\-\-prompt=\fR\fB\fIformat_str\fR\fR
+@@ -1114,6 +1236,36 @@ Do not send passwords to the server in o
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysql: select-limit option
++.\" select-limit option: mysql
++\fB\-\-select\-limit=\fR\fB\fIlimit\fR\fR
++.sp
++Set automatic limit for SELECT when using \fB\-\-safe\-updates\fR\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysql: server-arg option
++.\" server-arg option: mysql
++\fB\-\-server\-arg=\fR\fB\fIname\fR\fR
++.sp
++Send \fB\fIname\fR\fR as a parameter to the embedded server\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysql: show-warnings option
+ .\" show-warnings option: mysql
+ \fB\-\-show\-warnings\fR
+@@ -1166,6 +1318,21 @@ option\&.
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysql: skip-auto-rehash option
++.\" skip-auto-rehash option: mysql
++\fB\-\-skip\-auto\-rehash\fR
++.sp
++Disable automatic rehashing\&. Synonym for \fB\-\-disable\-auto\-rehash\fR\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysql: skip-column-names option
+ .\" skip-column-names option: mysql
+ \fB\-\-skip\-column\-names\fR,
+@@ -1220,7 +1387,7 @@ localhost, the Unix socket file to use,
+ \fB\-\-ssl*\fR
+ .sp
+ Options that begin with
+-\fB\-\-ssl\fR
++\fB\-\-ssl\fR,
+ specify whether to connect to the server using SSL and indicate where to find SSL keys and certificates\&. See
+ Section\ \&6.3.8.4, \(lqSSL Command Options\(rq\&.
+ .RE
+@@ -1396,7 +1563,7 @@ The XML output also uses an XML namespac
+ .RS 4
+ .\}
+ .nf
+-shell> \fBmysql \-\-xml \-uroot \-e "SHOW VARIABLES LIKE \*(Aqversion%\*(Aq"\fR
++shell> \fBmysql \-\-xml \-u root \-e "SHOW VARIABLES LIKE \*(Aqversion%\*(Aq"\fR
+ <?xml version="1\&.0"?>
+ <resultset statement="SHOW VARIABLES LIKE \*(Aqversion%\*(Aq" xmlns:xsi="http://www\&.w3\&.org/2001/XMLSchema\-instance">
+ <row>
+@@ -2963,16 +3130,16 @@ statements that probably need to examine
+ .RE
+ .PP
+ To specify limits different from 1,000 and 1,000,000, you can override the defaults by using the
+-\fB\-\-select_limit\fR
++\fB\-\-select\-limit\fR
+ and
+-\fB\-\-max_join_size\fR
++\fB\-\-max\-join\-size\fR
+ options:
+ .sp
+ .if n \{\
+ .RS 4
+ .\}
+ .nf
+-shell> \fBmysql \-\-safe\-updates \-\-select_limit=500 \-\-max_join_size=10000\fR
++shell> \fBmysql \-\-safe\-updates \-\-select\-limit=500 \-\-max\-join\-size=10000\fR
+ .fi
+ .if n \{\
+ .RE
+
+# ===== mysqlshow manual page =====
+
+diff -up mysql-5.5.31/man/mysqlshow.1.broken mysql-5.5.31/man/mysqlshow.1
+--- mysql-5.5.31/man/mysqlshow.1.broken	2013-05-28 17:09:06.110099662 +0200
++++ mysql-5.5.31/man/mysqlshow.1	2013-05-28 17:12:58.169634654 +0200
+@@ -175,7 +175,8 @@ that is supplied with MySQL Cluster\&. I
+ .\}
+ .\" mysqlshow: character-sets-dir option
+ .\" character-sets-dir option: mysqlshow
+-\fB\-\-character\-sets\-dir=\fR\fB\fIpath\fR\fR
++\fB\-\-character\-sets\-dir=\fR\fB\fIpath\fR\fR,
++\fB\-c\fR
+ .sp
+ The directory where character sets are installed\&. See
+ Section\ \&10.5, \(lqCharacter Set Configuration\(rq\&.
+@@ -307,6 +308,38 @@ This option was added in MySQL 5\&.5\&.1
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqlshow: defaults-extra-file option
++.\" defaults-extra-file option: mysqlshow
++\fB\-\-defaults\-extra\-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from after the global defaults files has been
++read\&.  Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqlshow: defaults-file option
++.\" defaults-file option: mysqlshow
++\fB\-\-defaults\-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from, override global defaults files\&.
++Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqlshow: host option
+ .\" host option: mysqlshow
+ \fB\-\-host=\fR\fB\fIhost_name\fR\fR,
+@@ -339,6 +372,22 @@ Show table indexes\&.
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqlshow: no-defaults option
++.\" no-defaults option: mysqlshow
++\fB\-\-no\-defaults\fR
++.sp
++Do not read default options from any option file\&. This must be given as the
++first argument\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqlshow: password option
+ .\" password option: mysqlshow
+ \fB\-\-password[=\fR\fB\fIpassword\fR\fR\fB]\fR,
+@@ -415,6 +464,22 @@ The TCP/IP port number to use for the co
+ .RE
+ .sp
+ .RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqlshow: print-defaults option
++.\" print-defaults option: mysqlshow
++\fB\-\-print\-defaults\fR
++.sp
++Print the program argument list and exit\&.
++This must be given as the first argument\&.
++.RE
++.sp
++.RS 4
+ .ie n \{\
+ \h'-04'\(bu\h'+03'\c
+ .\}
+
+# ===== mysqlslap manual page =====
+
+diff -up mysql-5.5.31/man/mysqlslap.1.broken mysql-5.5.31/man/mysqlslap.1
+--- mysql-5.5.31/man/mysqlslap.1.broken	2013-03-25 14:15:05.000000000 +0100
++++ mysql-5.5.31/man/mysqlslap.1	2013-05-28 17:28:05.189690868 +0200
+@@ -543,6 +543,38 @@ This option was added in MySQL 5\&.5\&.1
+ .el \{\
+ .sp -1
+ .IP \(bu 2.3
++.\" mysqlslap: defaults-extra-file option
++.\" defaults-extra-file option: mysqlslap
++\fB\-\-defaults\-extra\-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from after the global defaults files has been
++read\&.  Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqlslap: defaults-file option
++.\" defaults-file option: mysqlslap
++\fB\-\-defaults\-file=\fR\fB\fIfilename\fR\fR
++.sp
++Set \fB\fIfilename\fR\fR as the file to read default options from, override global defaults files\&.
++Must be given as first option\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\}
+ .\" mysqlslap: delimiter option
+ .\" delimiter option: mysqlslap
+@@ -643,6 +675,37 @@ The number of times to run the tests\&.
+ .sp -1
+ .IP \(bu 2.3
+ .\}
++.\" mysqlslap: no-defaults option
++.\" no-defaults option: mysqlslap
++\fB\-\-no\-defaults\fR
++.sp
++Do not read default options from any option file\&. This must be given as the
++first argument\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqlslap: no-drop option
++.\" no-drop option: mysqlslap
++\fB\-\-no\-drop\fR
++.sp
++Do not drop the schema after the test\&.
++.RE
++.sp
++.RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
+ .\" mysqlslap: number-char-cols option
+ .\" number-char-cols option: mysqlslap
+ \fB\-\-number\-char\-cols=\fR\fB\fIN\fR\fR,
+@@ -821,6 +884,22 @@ The file or string containing the statem
+ .RE
+ .sp
+ .RS 4
++.ie n \{\
++\h'-04'\(bu\h'+03'\c
++.\}
++.el \{\
++.sp -1
++.IP \(bu 2.3
++.\}
++.\" mysqlslap: print-defaults option
++.\" print-defaults option: mysqlslap
++\fB\-\-print\-defaults\fR
++.sp
++Print the program argument list and exit\&.
++This must be given as the first argument\&.
++.RE
++.sp
++.RS 4
+ .ie n \{\
+ \h'-04'\(bu\h'+03'\c
+ .\}
+

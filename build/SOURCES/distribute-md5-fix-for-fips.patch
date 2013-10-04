@@ -1,0 +1,32 @@
+--- setuptools/package_index.py.orig	2013-05-20 09:59:41.781888440 +0200
++++ setuptools/package_index.py	2013-05-20 10:03:40.124505427 +0200
+@@ -9,6 +9,12 @@
+     from hashlib import md5
+ except ImportError:
+     from md5 import md5
++
++# replace original md5 with md5 with pre-setted parameter usedforsecurity=False
++# to make easy_install usable while fips mode on
++from functools import partial
++md5 = partial(md5, usedforsecurity=False)
++
+ from fnmatch import translate
+ 
+ EGG_FRAGMENT = re.compile(r'^egg=([-A-Za-z0-9_.]+)$')
+
+
+--- setuptools/command/upload.py.orig	2013-05-20 10:05:47.940349866 +0200
++++ setuptools/command/upload.py	2013-05-20 10:05:01.972058211 +0200
+@@ -10,6 +10,12 @@
+     from hashlib import md5
+ except ImportError:
+     from md5 import md5
++
++# replace original md5 with md5 with pre-setted parameter usedforsecurity=False 
++# to make easy_install usable while fips mode on                                
++from functools import partial                                                   
++md5 = partial(md5, usedforsecurity=False)         
++
+ import os
+ import socket
+ import platform

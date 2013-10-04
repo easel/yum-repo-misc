@@ -1,0 +1,60 @@
+From 677ffc8fe97148750054b11e7fbd21c98f860ee1 Mon Sep 17 00:00:00 2001
+From: Father Chrysostomos <sprout@cpan.org>
+Date: Fri, 21 Sep 2012 18:23:20 -0700
+Subject: [PATCH] =?UTF-8?q?Don=E2=80=99t=20leak=20deleted=20iterator=20whe?=
+ =?UTF-8?q?n=20tying=20hash?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Petr Pisar: ported to 5.16.3
+---
+ pp_sys.c   |  7 +++++++
+ t/op/tie.t | 13 +++++++++++++
+ 2 files changed, 20 insertions(+)
+
+diff --git a/pp_sys.c b/pp_sys.c
+index 034a2d0..0e35d59 100644
+--- a/pp_sys.c
++++ b/pp_sys.c
+@@ -852,9 +852,16 @@ PP(pp_tie)
+ 
+     switch(SvTYPE(varsv)) {
+ 	case SVt_PVHV:
++	{
++	    HE *entry;
+ 	    methname = "TIEHASH";
++	    if (HvLAZYDEL(varsv) && (entry = HvEITER((HV *)varsv))) {
++		HvLAZYDEL_off(varsv);
++		hv_free_ent((HV *)varsv, entry);
++	    }
+ 	    HvEITER_set(MUTABLE_HV(varsv), 0);
+ 	    break;
++	}
+ 	case SVt_PVAV:
+ 	    methname = "TIEARRAY";
+ 	    if (!AvREAL(varsv)) {
+diff --git a/t/op/tie.t b/t/op/tie.t
+index 9301bb3..5a536b8 100644
+--- a/t/op/tie.t
++++ b/t/op/tie.t
+@@ -1259,3 +1259,16 @@ $h{i}{j} = 'k';
+ print $h{i}{j}, "\n";
+ EXPECT
+ k
++########
++
++# NAME Test that tying a hash does not leak a deleted iterator
++# This produced unbalanced string table warnings under
++# PERL_DESTRUCT_LEVEL=2.
++package l {
++    sub TIEHASH{bless[]}
++}
++$h = {foo=>0};
++each %$h;
++delete $$h{foo};
++tie %$h, 'l';
++EXPECT
+-- 
+1.8.1.4
+

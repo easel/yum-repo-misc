@@ -6,7 +6,7 @@
 %global major_version 1
 %global minor_version 9
 %global teeny_version 3
-%global patch_level 327
+%global patch_level 448
 
 %global major_minor_version %{major_version}.%{minor_version}
 
@@ -45,10 +45,10 @@
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version_patch_level}
-%global rdoc_version 3.9.4
+%global rdoc_version 3.9.5
 %global bigdecimal_version 1.1.0
 %global io_console_version 0.3
-%global json_version 1.5.4
+%global json_version 1.5.5
 %global minitest_version 2.5.1
 
 %global	_normalized_cpu	%(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/;s/armv.*/arm/')
@@ -61,7 +61,7 @@ Version: %{ruby_version_patch_level}
 # we cannot reset the release number to 1 even when the main (ruby) version
 # is updated - because it may be that the versions of sub-components don't
 # change.
-Release: 27%{?dist}
+Release: 38%{?dist}
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, ...
 License: (Ruby or BSD) and Public Domain
@@ -79,13 +79,11 @@ Patch2: ruby-1.9.3-added-site-and-vendor-arch-flags.patch
 # some differencies in build between Fedora and RHEL.
 Patch3: ruby-1.9.3-always-use-i386.patch
 # http://redmine.ruby-lang.org/issues/5465
-Patch4: ruby-1.9.3-fix-s390x-build.patch
+# Fixed in 1.9.3 p448
+#Patch4: ruby-1.9.3-fix-s390x-build.patch
 # Fix the uninstaller, so that it doesn't say that gem doesn't exist
 # when it exists outside of the GEM_HOME (already fixed in the upstream)
 Patch5: ruby-1.9.3-rubygems-1.8.11-uninstaller.patch
-# Already fixed upstream:
-# https://github.com/ruby/ruby/commit/f212df564a4e1025f9fb019ce727022a97bfff53
-Patch7: ruby-1.9.3-bignum-test-fix.patch
 # Allows to install RubyGems into custom directory, outside of Ruby's tree.
 # http://redmine.ruby-lang.org/issues/5617
 Patch8: ruby-1.9.3-custom-rubygems-location.patch
@@ -95,17 +93,14 @@ Patch9: rubygems-1.8.11-binary-extensions.patch
 # On koji, network related tests sometimes cause internal server error,
 # ignore these
 Patch10: ruby-1.9.3-p327-ignore-internal-server-error-on-test.patch
-# http://bugs.ruby-lang.org/issues/show/7312
-# test_str_crypt fails with glibc 2.17
-Patch11: ruby-1.9.3-p327-crypt-argument-glibc217.patch
 # Make mkmf verbose by default
 Patch12: ruby-1.9.3-mkmf-verbose.patch
-# XSS exploit of RDoc
-# https://bugzilla.redhat.com/show_bug.cgi?id=907820
-Patch13: ruby-1.9.3-rdoc-3.12-CVE-2013-0256-fix.patch
-# Denial of Service and SQL Injection in JSON
-# https://bugzilla.redhat.com/show_bug.cgi?id=909029
-Patch14: ruby-1.9.3-json-1.7.7-CVE-2013-0269-denial-of-service.patch
+# Fixes issues mentioned in rhbz#789532, comment 8.
+# TODO: Should be probably upstreamed with #5281.
+Patch14: ruby-2.0.0-Expand-ruby.pc-variable-by-configuration-process.patch
+# Fix regression introduced by CVE-2013-4073
+# https://bugs.ruby-lang.org/issues/8575
+Patch15: ruby-2.0.0-p255-Fix-SSL-client-connection-crash-for-SAN-marked-critical.patch
 
 # make sure we always use scl gdbm
 %if 0%{?scl_gdbm}
@@ -118,7 +113,6 @@ Requires: %{?scl_prefix}ruby(rubygems) >= %{rubygems_version}
 # See https://bugzilla.redhat.com/show_bug.cgi?id=829209
 # and http://bugs.ruby-lang.org/issues/6123
 Requires: %{?scl_prefix}rubygem(bigdecimal) >= %{bigdecimal_version}
-%{?scl:Requires: %{scl}-runtime}
 
 %{?scl:BuildRequires: %{scl}-runtime}
 BuildRequires: autoconf
@@ -166,6 +160,7 @@ Ruby or an application embedding Ruby.
 Summary:    Libraries necessary to run Ruby
 Group:      Development/Libraries
 License:    Ruby or BSD
+%{?scl:Requires: %scl_runtime}
 Provides:   %{?scl_prefix}ruby(abi) = %{ruby_abi}
 
 %description libs
@@ -358,16 +353,14 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
+#%%patch4 -p1
 %patch5 -p1
-%patch7 -p1
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
-%patch11 -p1
 %patch12 -p1
-%patch13 -p1
 %patch14 -p1
+%patch15 -p0
 
 %build
 autoconf
@@ -390,6 +383,7 @@ autoconf
         --with-vendorarchdir='%{ruby_vendorarchdir}' \
         --with-rubyhdrdir='%{_includedir}' \
         --with-rubygemsdir='%{rubygems_dir}' \
+        --with-ruby_pc='%{pkg_name}.pc' \
         --disable-rpath \
         --enable-shared \
         --disable-versioned-paths
@@ -403,6 +397,9 @@ make %{?_smp_mflags} COPY="cp -p" Q=
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
+# Provide also %%{hame}-%%{major_minor_version}.pc for backward compatibility.
+cp -p %{buildroot}%{_libdir}/pkgconfig/%{pkg_name}{,-%{major_minor_version}}.pc
+
 # Dump the macros into macro.ruby to use them to build other Ruby libraries.
 mkdir -p %{buildroot}%{_root_sysconfdir}/rpm
 cat >> %{buildroot}%{_root_sysconfdir}/rpm/macros.ruby%{?scl:.%{scl}} << \EOF
@@ -411,8 +408,8 @@ cat >> %{buildroot}%{_root_sysconfdir}/rpm/macros.ruby%{?scl:.%{scl}} << \EOF
 
 # This is the local lib/arch and should not be used for packaging.
 %%ruby_sitedir site_ruby
-%%ruby_sitelibdir %%{_prefix}/local/share/ruby/%%{ruby_sitedir}
-%%ruby_sitearchdir %%{_prefix}/local/%%{_lib}/ruby/%%{ruby_sitedir}
+%%ruby_sitelibdir %%{_prefix}/local/share/%{pkg_name}/%%{ruby_sitedir}
+%%ruby_sitearchdir %%{_prefix}/local/%%{_lib}/%{pkg_name}/%%{ruby_sitedir}
 
 # This is the general location for libs/archs compatible with all
 # or most of the Ruby versions available in the Fedora repositories.
@@ -504,18 +501,6 @@ sed -i '2 a\
 sed -i '2 a\
   s.require_paths = ["lib"]' %{buildroot}%{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
 
-# Create the %%{_root_bindir} wrapper:
-%if 0%{?scl:1}
-mkdir -p %{buildroot}%{_root_bindir}
-cat > %{buildroot}%{_root_bindir}/%{scl_prefix}ruby << 'EOF'
-#!/bin/bash
-
-COMMAND="ruby $@"
-scl enable %{scl} "$COMMAND"
-EOF
-chmod a+x %{buildroot}%{_root_bindir}/%{scl_prefix}ruby
-%endif
-
 %check
 DISABLE_TESTS=""
 
@@ -529,8 +514,22 @@ DISABLE_TESTS="-x test_drbssl.rb $DISABLE_TESTS"
 DISABLE_TESTS="-x test_dl2.rb $DISABLE_TESTS"
 %endif
 
+%ifarch %{arm}
+# test_parse.rb fails on ARM at line 787
+# http://bugs.ruby-lang.org/issues/6899
+DISABLE_TESTS="-x test_parse.rb $DISABLE_TESTS"
+%endif
+
 %ifnarch ppc ppc64
+# The test suite must run with enabled collection as long as collection libyaml
+# is used (rhbz#972777).
+%if 0%{?scl_libyaml}
+%{?scl:scl enable %scl - << \EOF}
+%endif
 make check TESTS="-v $DISABLE_TESTS"
+%if 0%{?scl_libyaml}
+%{?scl:EOF}
+%endif
 %endif
 
 %post libs -p /sbin/ldconfig
@@ -542,7 +541,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %lang(ja) %doc COPYING.ja
 %doc GPL
 %doc LEGAL
-%{?scl:%{_root_bindir}/%{scl_prefix}ruby}
 %{_bindir}/erb
 %{_bindir}/ruby
 %{_bindir}/testrb
@@ -563,7 +561,15 @@ make check TESTS="-v $DISABLE_TESTS"
 
 %{_includedir}/*
 %{_libdir}/libruby.so
+%if 0%{?scl:1}
+# SCL depends on system pkgconfig.
+%{_libdir}/pkgconfig
+%else
+# TODO
+# ruby.pc still needs fixing, see bug 789532 comment 8
+%{_libdir}/pkgconfig/ruby.pc
 %{_libdir}/pkgconfig/ruby-%{major_minor_version}.pc
+%endif
 
 %files libs
 %doc COPYING
@@ -814,6 +820,50 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Mon Jul 08 2013 Vít Ondruch <vondruch@redhat.com> - 1.9.3.448-38
+- Update to 1.9.3 p448.
+  - Resolves: rhbz#979357
+- Fix hostname check bypassing vulnerability in SSL client (CVE-2013-4073).
+  - Resolves: rhbz#980735
+- Fix regression introduced by CVE-2013-4073
+  https://bugs.ruby-lang.org/issues/8575
+  * ruby-2.0.0-p255-Fix-SSL-client-connection-crash-for-SAN-marked-critical.patch
+  - Related: rhbz#980735
+
+* Tue Jun 11 2013 Vít Ondruch <vondruch@redhat.com> - 1.9.3.429-37
+- Test suite must run with enabled collection to prevent Psych failures.
+  - Resolves: rhbz#972777
+
+* Thu May 23 2013 Vít Ondruch <vondruch@redhat.com> - 1.9.3.429-36
+- Remove %%{_root_bindir} wrapper.
+- Resolves: rhbz#966414
+
+* Thu May 23 2013 Vít Ondruch <vondruch@redhat.com> - 1.9.3.429-35
+- Fix pkgconfig file names.
+- Fix paths in RPM macros files.
+- Related: rhbz#964052
+
+* Fri May 17 2013 Vít Ondruch <vondruch@redhat.com> - 1.9.3.429-34
+- Update to 1.9.3 p429.
+  - Fix object taint bypassing in DL and Fiddle (CVE-2013-2065)
+- Resolves: rhbz#964052
+
+* Mon May 13 2013 Vít Ondruch <vondruch@redhat.com> - 1.9.3.327-33
+- -libs have to require collection -runtime package, to properly remove all
+  files (rhbz#956236).
+
+* Mon Apr 29 2013 Vít Ondruch <vondruch@redhat.com> - 1.9.3.327-32
+- Own pkgconfig directory, since we depends on system one (rhbz#956236).
+
+* Wed Apr 24 2013 Vít Ondruch <vondruch@redhat.com> - 1.9.3.327-31
+- Rebuild against zlib-1.2.3-27 to have RHEL-6.2 compatible requires.
+
+* Wed Mar 27 2013 Vít Ondruch <vondruch@redhat.com> - 1.9.3.327-30
+- Rebuild against latest scl-utils.
+
+* Mon Feb 25 2013 Josef Stribny <jstribny@redhat.com> - 1.9.3.327-28
+- Patch unrestricted entity expansion flaw in REXML (rhbz#914716).
+
 * Wed Feb 13 2013 Josef Stribny <jstribny@redhat.com> - 1.9.3.327-27
 - Patch denial of sevice and SQL injection CVE-2013-0269 in JSON (rhbz#909029).
 
@@ -909,18 +959,18 @@ make check TESTS="-v $DISABLE_TESTS"
 - Create and own RubyGems directories for binary extensions.
 - Fix build with GCC 4.7.
 
-* Wed Jan 16 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.0-3
+* Mon Jan 16 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.0-3
 - Fix RHEL build.
 - Fixed directory ownership.
 - Verose build output.
 
-* Wed Jan 15 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.0-2
+* Sun Jan 15 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.0-2
 - Install RubyGems outside of Ruby directory structure.
 - RubyGems has not its own -devel subpackage.
 - Enhanced macros.ruby and macros.rubygems.
 - All tests are green now (bkabrda).
 
-* Tue Jan 14 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.0-1
+* Sat Jan 14 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.0-1
 - Initial package
 
 * Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.8.7.357-2
@@ -934,7 +984,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - dont normalise arm cpus to arm
 - there is something weird about how ruby choses where to put bits
 
-* Thu Nov 16 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.352-3
+* Thu Nov 17 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.352-3
 - F-17: kill gdbm support for now due to licensing compatibility issue
 
 * Sat Oct  1 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.352-2
@@ -1219,11 +1269,11 @@ make check TESTS="-v $DISABLE_TESTS"
 * Fri Aug 10 2007 Akira TAGOH <tagoh@redhat.com>
 - Update License tag.
 
-* Mon Jul 25 2007 Akira TAGOH <tagoh@redhat.com> - 1.8.6.36-3
+* Mon Jun 25 2007 Akira TAGOH <tagoh@redhat.com> - 1.8.6.36-3
 - ruby-r12567.patch: backport patch from upstream svn to get rid of
   the unnecessary declarations. (#245446)
 
-* Wed Jul 20 2007 Akira TAGOH <tagoh@redhat.com> - 1.8.6.36-2
+* Wed Jun 20 2007 Akira TAGOH <tagoh@redhat.com> - 1.8.6.36-2
 - New upstream release.
   - Fix Etc::getgrgid to get the correct gid as requested. (#236647)
 
@@ -1297,7 +1347,7 @@ make check TESTS="-v $DISABLE_TESTS"
 * Wed May 17 2006 Akira TAGOH <tagoh@redhat.com> - 1.8.4-6
 - ruby-deprecated-search-path.patch: added the deprecated installation paths
   to the search path for the backward compatibility.
-- added a Provides: %{?scl:%scl_prefix}ruby(abi) to ruby-libs.
+- added a Provides: ruby(abi) to ruby-libs.
 - ruby-1.8.4-64bit-pack.patch: backport patch from upstream to fix unpack("l")
   not working on 64bit arch and integer overflow on template "w". (#189350)
 - updated License tag to be more comfortable, and with a pointer to get more
@@ -1687,7 +1737,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Removed ruby_cvs.2000092718.patch and added ruby_cvs.2000100218.patch
   (upgraded ruby to latest cvs version).
 
-* Thu Sep 27 2000 akira yamada <akira@vinelinux.org>
+* Wed Sep 27 2000 akira yamada <akira@vinelinux.org>
 - Updated to upstream version 1.6.1.
 - Removed ruby_cvs.2000082901.patch and added ruby_cvs.2000092718.patch
   (upgraded ruby to latest cvs version).
@@ -1719,7 +1769,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Removed ruby-list.23190.patch(included into ruby_cvs.patch).
 - Added ruby-dev.10054.patch.
 
-* Tue Jun 15 2000 akira yamada <akira@redhat.com>
+* Thu Jun 15 2000 akira yamada <akira@redhat.com>
 - Updated to version 1.4.4(06/12/2000 CVS).
 - Added manuals and FAQs.
 - Split into ruby, ruby-devel, ruby-tcltk, ruby-docs, irb.
@@ -1765,7 +1815,7 @@ make check TESTS="-v $DISABLE_TESTS"
 * Fri Nov 13 1998 Toru Hoshina <hoshina@best.com>
 - Version up.
 
-* Mon Sep 22 1998 Toru Hoshina <hoshina@best.com>
+* Tue Sep 22 1998 Toru Hoshina <hoshina@best.com>
 - To make a libruby.so.
 
 * Mon Sep 21 1998 Toru Hoshina <hoshina@best.com>

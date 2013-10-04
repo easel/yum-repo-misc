@@ -1,0 +1,26 @@
+From bb25038fa667273c136c6fb2823d01684999d252 Mon Sep 17 00:00:00 2001
+From: Mikel Lindsaar <mikel@reinteractive.net>
+Date: Sat, 17 Nov 2012 10:56:01 +1100
+Subject: [PATCH] Issue 453: Failing spec in 1.9.3 fixed
+
+---
+ lib/mail/version_specific/ruby_1_9.rb |  5 ++-
+ spec/mail/encodings_spec.rb           | 76 +++++++++++++++++++----------------
+ 2 files changed, 46 insertions(+), 35 deletions(-)
+
+diff --git a/lib/mail/version_specific/ruby_1_9.rb b/lib/mail/version_specific/ruby_1_9.rb
+index 0eb3806..e74df25 100644
+--- a/lib/mail/version_specific/ruby_1_9.rb
++++ b/lib/mail/version_specific/ruby_1_9.rb
+@@ -68,7 +68,10 @@ def Ruby19.q_value_decode(str)
+       match = str.match(/\=\?(.+)?\?[Qq]\?(.+)?\?\=/m)
+       if match
+         encoding = match[1]
+-        str = Encodings::QuotedPrintable.decode(match[2].gsub(/_/, '=20'))
++        string = match[2].gsub(/_/, '=20')
++        # Remove trailing = if it exists in a Q encoding as Ruby 1.9.3 does not silently discard
++        string = string.sub(/\=$/, '')
++        str = Encodings::QuotedPrintable.decode(string)
+         str.force_encoding(fix_encoding(encoding))
+       end
+       decoded = str.encode("utf-8", :invalid => :replace, :replace => "")

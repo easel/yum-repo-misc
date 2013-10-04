@@ -1,0 +1,25 @@
+From eb41e3b372a130efccdbbc14db2bdf092ce61a58 Mon Sep 17 00:00:00 2001
+From: "T.C. Hollingsworth" <tchollingsworth@gmail.com>
+Date: Sat, 5 Jan 2013 02:37:57 -0700
+Subject: [PATCH 2/2] use the system gyp
+
+---
+ lib/configure.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/configure.js b/lib/configure.js
+index 9765fe1..ba6b2ac 100644
+--- a/lib/configure.js
++++ b/lib/configure.js
+@@ -374,7 +374,7 @@ function configure (gyp, argv, callback) {
+     })
+ 
+     // this logic ported from the old `gyp_addon` python file
+-    var gyp_script = path.resolve(__dirname, '..', 'gyp', 'gyp')
++    var gyp_script = '/usr/bin/gyp'
+     var addon_gypi_file = gyp.opts.target || gyp.opts.nodeDir ? 'addon.gypi' : 'addon-rpm.gypi'
+     var addon_gypi = path.resolve(__dirname, '..', addon_gypi_file)
+     var common_gypi = path.resolve(nodeDir, 'common.gypi')
+-- 
+1.8.1.4
+

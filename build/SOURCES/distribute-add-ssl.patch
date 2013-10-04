@@ -1,0 +1,375 @@
+--- distribute-0.6.28/setuptools/command/easy_install.py.orig	2013-08-15 13:07:49.753359418 +0200
++++ distribute-0.6.28/setuptools/command/easy_install.py	2013-08-15 13:08:27.540661337 +0200
+@@ -281,7 +281,7 @@
+                 else:
+                     self.all_site_dirs.append(normalize_path(d))
+         if not self.editable: self.check_site_dir()
+-        self.index_url = self.index_url or "http://pypi.python.org/simple"
++        self.index_url = self.index_url or "https://pypi.python.org/simple"
+         self.shadow_path = self.all_site_dirs[:]
+         for path_item in self.install_dir, normalize_path(self.script_dir):
+             if path_item not in self.shadow_path:
+--- distribute-0.6.28/setuptools/package_index.py.orig	2013-08-15 13:00:56.830053967 +0200
++++ distribute-0.6.28/setuptools/package_index.py	2013-08-15 13:08:18.908592367 +0200
+@@ -2,6 +2,7 @@
+ import sys, os.path, re, urlparse, urllib, urllib2, shutil, random, socket, cStringIO
+ import base64
+ import httplib
++from setuptools import ssl_support
+ from pkg_resources import *
+ from distutils import log
+ from distutils.errors import DistutilsError
+@@ -168,8 +169,8 @@
+ class PackageIndex(Environment):
+     """A distribution index that scans web pages for download URLs"""
+ 
+-    def __init__(self, index_url="http://pypi.python.org/simple", hosts=('*',),
+-        *args, **kw
++    def __init__(self, index_url="https://pypi.python.org/simple", hosts=('*',),
++        ca_bundle=None, verify_ssl=True, *args, **kw
+     ):
+         Environment.__init__(self,*args,**kw)
+         self.index_url = index_url + "/"[:not index_url.endswith('/')]
+@@ -178,8 +179,9 @@
+         self.package_pages = {}
+         self.allows = re.compile('|'.join(map(translate,hosts))).match
+         self.to_scan = []
+-
+-
++        if verify_ssl and ssl_support.is_available and (ca_bundle or ssl_support.find_ca_bundle()):
++            self.opener = ssl_support.opener_for(ca_bundle)
++        else: self.opener = urllib2.urlopen
+ 
+     def process_url(self, url, retrieve=False):
+         """Evaluate a URL as a possible download, and maybe retrieve it"""
+@@ -614,7 +616,7 @@
+         if url.startswith('file:'):
+             return local_open(url)
+         try:
+-            return open_with_auth(url)
++            return open_with_auth(url, self.opener)
+         except (ValueError, httplib.InvalidURL), v:
+             msg = ' '.join([str(arg) for arg in v.args])
+             if warning:
+@@ -780,7 +782,7 @@
+     # strip the trailing carriage return
+     return encoded.rstrip()
+ 
+-def open_with_auth(url):
++def open_with_auth(url, opener=urllib2.urlopen):
+     """Open a urllib2 request, handling HTTP authentication"""
+ 
+     scheme, netloc, path, params, query, frag = urlparse.urlparse(url)
+@@ -799,7 +801,7 @@
+         request = urllib2.Request(url)
+ 
+     request.add_header('User-Agent', user_agent)
+-    fp = urllib2.urlopen(request)
++    fp = opener(request)
+ 
+     if auth:
+         # Put authentication info back into request URL if same host,
+@@ -865,4 +867,4 @@
+ 
+ 
+ 
+-# this line is a kludge to keep the trailing blank lines for pje's editor
+\ No newline at end of file
++# this line is a kludge to keep the trailing blank lines for pje's editor
+--- /dev/null	2013-08-13 08:31:15.916291887 +0200
++++ distribute-0.6.28/setuptools/ssl_support.py	2013-08-15 13:14:13.276423937 +0200
+@@ -0,0 +1,253 @@
++import sys, os, socket, urllib2, atexit, re
++
++try:
++    import ssl
++except ImportError:
++    ssl = None
++
++__all__ = [
++    'VerifyingHTTPSHandler', 'find_ca_bundle', 'is_available', 'cert_paths',
++    'opener_for'
++]
++
++cert_paths = """
++/etc/pki/tls/certs/ca-bundle.crt
++/etc/ssl/certs/ca-certificates.crt
++/usr/share/ssl/certs/ca-bundle.crt
++/usr/local/share/certs/ca-root.crt
++/etc/ssl/cert.pem
++/System/Library/OpenSSL/certs/cert.pem
++""".strip().split()
++
++
++HTTPSHandler = HTTPSConnection = object
++
++for what, where in (
++    ('HTTPSHandler', ['urllib2','urllib.request']),
++    ('HTTPSConnection', ['httplib', 'http.client']),
++):
++    for module in where:
++        try:
++            exec("from %s import %s" % (module, what))
++        except ImportError:
++            pass
++
++is_available = ssl is not None and object not in (HTTPSHandler, HTTPSConnection)
++
++
++
++
++
++
++try:
++    from socket import create_connection
++except ImportError:
++    _GLOBAL_DEFAULT_TIMEOUT = getattr(socket, '_GLOBAL_DEFAULT_TIMEOUT', object())
++    def create_connection(address, timeout=_GLOBAL_DEFAULT_TIMEOUT,
++                          source_address=None):
++        """Connect to *address* and return the socket object.
++    
++        Convenience function.  Connect to *address* (a 2-tuple ``(host,
++        port)``) and return the socket object.  Passing the optional
++        *timeout* parameter will set the timeout on the socket instance
++        before attempting to connect.  If no *timeout* is supplied, the
++        global default timeout setting returned by :func:`getdefaulttimeout`
++        is used.  If *source_address* is set it must be a tuple of (host, port)
++        for the socket to bind as a source address before making the connection.
++        An host of '' or port 0 tells the OS to use the default.
++        """   
++        host, port = address
++        err = None
++        for res in socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM):
++            af, socktype, proto, canonname, sa = res
++            sock = None
++            try:
++                sock = socket.socket(af, socktype, proto)
++                if timeout is not _GLOBAL_DEFAULT_TIMEOUT:
++                    sock.settimeout(timeout)
++                if source_address:
++                    sock.bind(source_address)
++                sock.connect(sa)
++                return sock
++
++            except error:
++                err = True
++                if sock is not None:
++                    sock.close()    
++        if err:
++            raise
++        else:
++            raise error("getaddrinfo returns an empty list")
++
++
++try:
++    from ssl import CertificateError, match_hostname
++except ImportError:
++    class CertificateError(ValueError):
++        pass
++       
++    def _dnsname_to_pat(dn, max_wildcards=1):
++        pats = []
++        for frag in dn.split(r'.'):
++            if frag.count('*') > max_wildcards:
++                # Issue #17980: avoid denials of service by refusing more
++                # than one wildcard per fragment. A survery of established
++                # policy among SSL implementations showed it to be a
++                # reasonable choice.
++                raise CertificateError(
++                        "too many wildcards in certificate DNS name: " + repr(dn))
++            if frag == '*':
++                # When '*' is a fragment by itself, it matches a non-empty dotless
++                # fragment.
++                pats.append('[^.]+')
++            else:
++                # Otherwise, '*' matches any dotless fragment.
++                frag = re.escape(frag)
++                pats.append(frag.replace(r'\*', '[^.]*'))
++        return re.compile(r'\A' + r'\.'.join(pats) + r'\Z', re.IGNORECASE)
++       
++    def match_hostname(cert, hostname):
++        """Verify that *cert* (in decoded format as returned by
++        SSLSocket.getpeercert()) matches the *hostname*.  RFC 2818 rules
++        are mostly followed, but IP addresses are not accepted for *hostname*.
++    
++        CertificateError is raised on failure. On success, the function
++        returns nothing.
++        """
++        if not cert:
++            raise ValueError("empty or no certificate")
++        dnsnames = []
++        san = cert.get('subjectAltName', ())
++        for key, value in san:
++            if key == 'DNS':
++                if _dnsname_to_pat(value).match(hostname):
++                    return
++                dnsnames.append(value)
++        if not dnsnames:
++            # The subject is only checked when there is no dNSName entry
++            # in subjectAltName
++            for sub in cert.get('subject', ()):
++                for key, value in sub:
++                    # XXX according to RFC 2818, the most specific Common Name
++                    # must be used.
++                    if key == 'commonName':
++                        if _dnsname_to_pat(value).match(hostname):
++                            return
++                        dnsnames.append(value)
++        if len(dnsnames) > 1:
++            raise CertificateError("hostname %r "
++                "doesn't match either of %s"
++                % (hostname, ', '.join(map(repr, dnsnames))))
++        elif len(dnsnames) == 1:
++            raise CertificateError("hostname %r "
++                "doesn't match %r"
++                % (hostname, dnsnames[0]))
++        else:
++            raise CertificateError("no appropriate commonName or "
++                "subjectAltName fields were found")
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++class VerifyingHTTPSHandler(HTTPSHandler):
++    """Simple verifying handler: no auth, subclasses, timeouts, etc."""
++
++    def __init__(self, ca_bundle):
++        self.ca_bundle = ca_bundle
++        HTTPSHandler.__init__(self)
++
++    def https_open(self, req):
++        return self.do_open(
++            lambda host, **kw: VerifyingHTTPSConn(host, self.ca_bundle, **kw), req
++        )
++
++
++class VerifyingHTTPSConn(HTTPSConnection):
++    """Simple verifying connection: no auth, subclasses, timeouts, etc."""
++    def __init__(self, host, ca_bundle, **kw):         
++        HTTPSConnection.__init__(self, host, **kw)
++        self.ca_bundle = ca_bundle
++
++    def connect(self):
++        sock = create_connection(
++            (self.host, self.port), getattr(self,'source_address',None)
++        )
++        self.sock = ssl.wrap_socket(
++            sock, cert_reqs=ssl.CERT_REQUIRED, ca_certs=self.ca_bundle
++        )               
++        try:
++            match_hostname(self.sock.getpeercert(), self.host)
++        except CertificateError:
++            self.sock.shutdown(socket.SHUT_RDWR)
++            self.sock.close()
++            raise
++
++def opener_for(ca_bundle=None):
++    """Get a urlopen() replacement that uses ca_bundle for verification"""
++    return urllib2.build_opener(
++        VerifyingHTTPSHandler(ca_bundle or find_ca_bundle())
++    ).open
++
++        
++
++_wincerts = None
++
++def get_win_certfile():
++    global _wincerts
++    if _wincerts is not None:
++        return _wincerts.name
++
++    try:        
++        from wincertstore import CertFile
++    except ImportError:
++        return None
++
++    class MyCertFile(CertFile):
++        def __init__(self, stores=(), certs=()):
++            CertFile.__init__(self)
++            for store in stores:
++                self.addstore(store)
++            self.addcerts(certs)
++            atexit.register(self.close)            
++
++    _wincerts = MyCertFile(stores=['CA', 'ROOT'])
++    return _wincerts.name
++    
++def find_ca_bundle():
++    """Return an existing CA bundle path, or None"""
++    if os.name=='nt':
++        return get_win_certfile()
++    else:
++        for cert_path in cert_paths:
++            if os.path.isfile(cert_path):
++                return cert_path
++
++
++
++
++
++
++
++
++
++
+--- distribute-0.6.28/setuptools/tests/test_packageindex.py.orig	2013-08-15 14:03:01.539774305 +0200
++++ distribute-0.6.28/setuptools/tests/test_packageindex.py	2013-08-15 14:04:34.279516505 +0200
+@@ -46,14 +46,13 @@
+             import httplib
+             raise httplib.BadStatusLine('line')
+ 
+-        old_urlopen = urllib2.urlopen
+-        urllib2.urlopen = _urlopen
++        index.opener = _urlopen
+         url = 'http://example.com'
+         try:
+             try:
+                 v = index.open_url(url)
+             except Exception, v:
+-                self.assert_('line' in str(v))
++                self.assertTrue('line' in str(v))
+             else:
+                 raise AssertionError('Should have raise here!')
+         finally:
+--- distribute-0.6.28/setuptools/tests/test_packageindex.py.orig	2013-08-15 14:15:42.004872127 +0200
++++ distribute-0.6.28/setuptools/tests/test_packageindex.py	2013-08-15 14:16:57.457481530 +0200
+@@ -49,14 +49,11 @@
+         index.opener = _urlopen
+         url = 'http://example.com'
+         try:
+-            try:
+-                v = index.open_url(url)
+-            except Exception, v:
+-                self.assertTrue('line' in str(v))
+-            else:
+-                raise AssertionError('Should have raise here!')
+-        finally:
+-            urllib2.urlopen = old_urlopen
++            v = index.open_url(url)
++        except Exception, v:
++            self.assertTrue('line' in str(v))
++        else:
++            raise Assertionerror('Should have raise here!')
+ 
+     def test_bad_url_double_scheme(self):
+         """

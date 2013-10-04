@@ -1,0 +1,72 @@
+From 01a64d7bf372871e262ab9c8b0d8145f0dcb3700 Mon Sep 17 00:00:00 2001
+From: "T.C. Hollingsworth" <tchollingsworth@gmail.com>
+Date: Sat, 5 Jan 2013 02:28:01 -0700
+Subject: [PATCH 1/2] use custom addon.gypi by default instead of downloading
+ node source
+
+---
+ lib/configure.js | 38 ++++++++++++++++++++------------------
+ 1 file changed, 20 insertions(+), 18 deletions(-)
+
+diff --git a/lib/configure.js b/lib/configure.js
+index 437b839..9765fe1 100644
+--- a/lib/configure.js
++++ b/lib/configure.js
+@@ -202,26 +202,27 @@ function configure (gyp, argv, callback) {
+         // if --target was given, then determine a target version to compile for
+         versionStr = gyp.opts.target
+         log.verbose('get node dir', 'compiling against --target node version: %s', versionStr)
+-      } else {
+-        // if no --target was specified then use the current host node version
+-        versionStr = process.version
+-        log.verbose('get node dir', 'no --target version specified, falling back to host node version: %s', versionStr)
+-      }
+ 
+-      // make sure we have a valid version
+-      version = semver.parse(versionStr)
+-      if (!version) {
+-        return callback(new Error('Invalid version number: ' + versionStr))
+-      }
++        // make sure we have a valid version
++        version = semver.parse(versionStr)
++        if (!version) {
++            return callback(new Error('Invalid version number: ' + versionStr))
++        }
+ 
+-      // ensure that the target node version's dev files are installed
+-      gyp.opts.ensure = true
+-      gyp.commands.install([ versionStr ], function (err, version) {
+-        if (err) return callback(err)
+-        log.verbose('get node dir', 'target node version installed:', version)
+-        nodeDir = path.resolve(gyp.devDir, version)
++        // ensure that the target node version's dev files are installed
++        gyp.opts.ensure = true
++        gyp.commands.install([ versionStr ], function (err, version) {
++            if (err) return callback(err)
++            log.verbose('get node dir', 'target node version installed:', version)
++            nodeDir = path.resolve(gyp.devDir, version)
++            createBuildDir()
++        })
++      } else {
++        // if no --target was specified then use RPM-installed headers
++        log.verbose('get node dir', 'no --target version specified, falling back to RPM installed headers')
++        nodeDir = '/usr/share/node'
+         createBuildDir()
+-      })
++      }
+     }
+   }
+ 
+@@ -374,7 +375,8 @@ function configure (gyp, argv, callback) {
+ 
+     // this logic ported from the old `gyp_addon` python file
+     var gyp_script = path.resolve(__dirname, '..', 'gyp', 'gyp')
+-    var addon_gypi = path.resolve(__dirname, '..', 'addon.gypi')
++    var addon_gypi_file = gyp.opts.target || gyp.opts.nodeDir ? 'addon.gypi' : 'addon-rpm.gypi'
++    var addon_gypi = path.resolve(__dirname, '..', addon_gypi_file)
+     var common_gypi = path.resolve(nodeDir, 'common.gypi')
+     var output_dir = 'build'
+     if (win) {
+-- 
+1.8.1.4
+

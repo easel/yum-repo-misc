@@ -1,0 +1,64 @@
+--- a/docutils/parsers/rst/directives/tables.py
++++ b/docutils/parsers/rst/directives/tables.py
+@@ -166,6 +166,7 @@
+         skipinitialspace = True
+         lineterminator = '\n'
+         quoting = csv.QUOTE_MINIMAL
++        strict = True
+ 
+         def __init__(self, options):
+             if 'delim' in options:
+@@ -191,6 +192,7 @@
+         skipinitialspace = True
+         lineterminator = '\n'
+         quoting = csv.QUOTE_MINIMAL
++        strict = True
+ 
+     def check_requirements(self):
+         pass
+--- a/test/test_parsers/test_rst/test_directives/test_tables.py
++++ b/test/test_parsers/test_rst/test_directives/test_tables.py
+@@ -42,6 +42,12 @@
+ 
+ null_bytes_exception = DocutilsTestSupport.exception_data(null_bytes)[0]
+ 
++def unexpected_eod():
++    reader = csv.reader(['"\n'], strict=1)
++    reader.next()
++
++unexpected_eod_exception = DocutilsTestSupport.exception_data(unexpected_eod)[0]
++
+ totest = {}
+ 
+ totest['table'] = [
+@@ -760,12 +766,12 @@
+     <system_message level="3" line="1" source="test data" type="ERROR">
+         <paragraph>
+             Error with CSV data in "csv-table" directive:
+-            newline inside string
++            %s
+         <literal_block xml:space="preserve">
+             .. csv-table:: bad CSV data
+             \n\
+                "bad", \"csv, data
+-"""],
++""" % unexpected_eod_exception],
+ ["""\
+ .. csv-table:: bad CSV header data
+    :header: "bad", \"csv, data
+@@ -777,13 +783,13 @@
+     <system_message level="3" line="1" source="test data" type="ERROR">
+         <paragraph>
+             Error with CSV data in "csv-table" directive:
+-            newline inside string
++            %s
+         <literal_block xml:space="preserve">
+             .. csv-table:: bad CSV header data
+                :header: "bad", \"csv, data
+             \n\
+                good, csv, data
+-"""],
++""" % unexpected_eod_exception],
+ ["""\
+ .. csv-table:: bad encoding
+    :file: %s
