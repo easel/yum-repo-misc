@@ -1449,7 +1449,8 @@ ruby193-gems-all: \
 	ruby193-rubygem-rack-protection \
 	ruby193-rubygem-actionpack \
 	ruby193-rubygem-actionmailer \
-	ruby193-rubygem-coffee-rails
+	ruby193-rubygem-coffee-rails \
+	ruby193-rubygem-sass-twitter-bootstrap
 
 ### ^^^ I have been able to build down to thor, without hitting a wall for now  I
 ### am moving to node and others and will come back to ruby issues.
@@ -1759,6 +1760,12 @@ ruby193-rubygem-sass:
 ruby193-rubygem-sass-rails:
 	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-sass-rails.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
 	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-sass-rails-3.2.5-2.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-sass-twitter-bootstrap
+ruby193-rubygem-sass-twitter-bootstrap:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-sass-twitter-bootstrap.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPM~/ruby193-rubygem-sass-twitter-bootstrap-2.0.1-1.el$(EPEL_VERSION).src.rpm
 	make EPEL_VERSION=$(EPEL_VERSION) createrepo
 
 .PHONY: ruby193-rubygem-sinatra

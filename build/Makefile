@@ -19,31 +19,31 @@ OPTIONS=-r epel-$(EPEL_VERSION)-x86_64
 SCL_OPTIONS=-r scl-x86_64
 
 # used for building python27 SCL-based packages
-PYTHON27_OPTIONS=-r python27-x86_64 
+PYTHON27_OPTIONS=-r python27-x86_64
 
 # used for building python33 SCL-based packages
-PYTHON33_OPTIONS=-r python33-x86_64 
+PYTHON33_OPTIONS=-r python33-x86_64
 
 # used for bulding ruby193 SCL-based packages
-RUBY193_OPTIONS=-r ruby193-x86_64 
+RUBY193_OPTIONS=-r ruby193-x86_64 --no-cleanup-after --verbose
 
 # used for bulding Postgres 9.2 SCL-based packages
-POSTGRES92_OPTIONS=-r postgres92-x86_64  
+POSTGRES92_OPTIONS=-r postgres92-x86_64
 
 # used for bulding Perl 5.16 SCL-based packages
-PERL516_OPTIONS=-r perl516-x86_64 
+PERL516_OPTIONS=-r perl516-x86_64
 
 # used for bulding Node 0.10 SCL-based packages
-NODE010_OPTIONS=-r node010-x86_64 
+NODE010_OPTIONS=-r node010-x86_64
 
 # used for bulding PHP 5.4 SCL-based packages
-PHP54_OPTIONS=-r php54-x86_64 
+PHP54_OPTIONS=-r php54-x86_64
 
 # used for bulding MySQL 5.5 SCL-based packages
-MYSQL55_OPTIONS=-r mysql55-x86_64 
+MYSQL55_OPTIONS=-r mysql55-x86_64
 
 # used for bulding MariaDB 5.5 SCL-based packages
-MARIADB55_OPTIONS=-r maria55db-x86_64 
+MARIADB55_OPTIONS=-r maria55db-x86_64
 
 
 
@@ -78,8 +78,7 @@ default:
 createrepo:
 	echo Updating epel-$(EPEL_VERSION) repository...
 	mkdir -p ~/localrepo/epel/$(EPEL_VERSION)/x86_64/
-	cp -v $(ROOT)/RPMS/*el$(EPEL_VERSION)*x86_64.rpm ~/localrepo/epel/$(EPEL_VERSION)/x86_64/
-	cp -v $(ROOT)/RPMS/*el$(EPEL_VERSION)*noarch.rpm ~/localrepo/epel/$(EPEL_VERSION)/x86_64/
+	cd $(ROOT)/RPMS/ && find . -name \*.rpm | cpio -dpvm /home/vagrant/localrepo/epel/$(EPEL_VERSION)/x86_64/
 	createrepo ~/localrepo/epel/$(EPEL_VERSION)/x86_64/
 
 .PHONY:
