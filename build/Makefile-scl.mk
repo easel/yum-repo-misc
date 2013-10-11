@@ -1452,9 +1452,51 @@ ruby193-gems-all: \
 	ruby193-rubygem-coffee-rails \
 	ruby193-rubygem-sass-twitter-bootstrap
 
-### ^^^ I have been able to build down to thor, without hitting a wall for now  I
-### am moving to node and others and will come back to ruby issues.
-###
+ruby193-gems-openshift-deps: \
+	ruby193-rubygem-chunky_png \
+	ruby193-rubygem-compass \
+	ruby193-rubygem-compass-rails \
+	ruby193-rubygem-fssm \
+	ruby193-rubygem-simplecov \
+	ruby193-rubygem-simplecov-html \
+	ruby193-rubygem-formtastic \
+	ruby193-rubygem-ci_reporter \
+	ruby193-rubygem-haml \
+	ruby193-rubygem-addressable \
+	ruby193-rubygem-crack \
+	ruby193-rubygem-rdiscount \
+	ruby193-rubygem-webmock \
+	ruby193-rubygem-bluecloth \
+	ruby193-rubygem-capybara \
+	ruby193-rubygem-cucumber \
+	ruby193-rubygem-eventmachine \
+	ruby193-rubygem-faye-websocket \
+	ruby193-rubygem-gherkin \
+	ruby193-rubygem-highline \
+	ruby193-rubygem-hoe \
+	ruby193-rubygem-hoe-highline \
+	ruby193-rubygem-hoe-mercurial \
+	ruby193-rubygem-http-parser \
+	ruby193-rubygem-json_pure \
+	ruby193-rubygem-nokogiri \
+	ruby193-rubygem-poltergeist \
+	ruby193-rubygem-rake-compiler \
+	ruby193-rubygem-rubyforge \
+	ruby193-rubygem-term-ansicolor \
+	ruby193-rubygem-tidy-ext \
+	ruby193-rubygem-trollop \
+	ruby193-rubygem-xpath \
+	ruby193-rubygem-yajl-ruby \
+	ruby193-rubygem-yard \
+	ruby193-rubygem-colorize \
+	ruby193-rubygem-konacha \
+	ruby193-rubygem-minitest \
+
+# rubygem-builder
+# rubygem-cucumber
+# rubygem-gherkin
+# rubygem-rubyforge
+# rubygem-trollop
 
 
 
@@ -1835,3 +1877,235 @@ ruby193-rubygem-ZenTest:
 	make EPEL_VERSION=$(EPEL_VERSION) createrepo
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#
+# Openshift Dependency Gems
+#
+#
+
+.PHONY: ruby193-rubygem-chunky_png
+ruby193-rubygem-chunky_png:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-chunky_png.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-chunky_png-1.2.6-2.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-compass
+ruby193-rubygem-compass:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-compass.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-compass-0.12.2-3.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-compass-rails
+ruby193-rubygem-compass-rails:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-compass-rails.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-compass-rails-1.0.3-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-fssm
+ruby193-rubygem-fssm:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-fssm.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-fssm-0.2.8.1-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-simplecov
+ruby193-rubygem-simplecov:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-simplecov.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-simplecov-0.6.4-2.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-simplecov-html
+ruby193-rubygem-simplecov-html:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-simplecov-html.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-simplecov-html-0.5.3-2.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-formtastic
+ruby193-rubygem-formtastic:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-formtastic.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-formtastic-1.2.4-2.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-ci_reporter
+ruby193-rubygem-ci_reporter:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-ci_reporter.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-ci_reporter-1.7.2-3.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-haml
+ruby193-rubygem-haml:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-haml.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-haml-4.0.3-2.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-addressable
+ruby193-rubygem-addressable:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-addressable.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-addressable-2.3.2-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-crack
+ruby193-rubygem-crack:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-crack.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-crack-0.3.2-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-rdiscount
+ruby193-rubygem-rdiscount:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-rdiscount.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-rdiscount-1.6.8-2.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-webmock
+ruby193-rubygem-webmock:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-webmock.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-webmock-1.8.11-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-bluecloth
+ruby193-rubygem-bluecloth:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-bluecloth.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-bluecloth-2.2.0-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-capybara
+ruby193-rubygem-capybara:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-capybara.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-capybara-2.1.0-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-cucumber
+ruby193-rubygem-cucumber:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-cucumber.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-cucumber-1.2.1-2.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-eventmachine
+ruby193-rubygem-eventmachine:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-eventmachine.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-eventmachine-1.0.3-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-faye-websocket
+ruby193-rubygem-faye-websocket:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-faye-websocket.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-faye-websocket-0.4.7-2.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-gherkin
+ruby193-rubygem-gherkin:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-gherkin.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-gherkin-2.11.2-2.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-highline
+ruby193-rubygem-highline:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-highline.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-highline-1.6.16-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-hoe
+ruby193-rubygem-hoe:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-hoe.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-hoe-2.6.2-5.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-hoe-highline
+ruby193-rubygem-hoe-highline:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-hoe-highline.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-hoe-highline-0.1.0-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-hoe-mercurial
+ruby193-rubygem-hoe-mercurial:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-hoe-mercurial.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-hoe-mercurial-1.4.0-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-http-parser
+ruby193-rubygem-http-parser:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/http-parser.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-http-parser-2.0-5.20121128gitcd01361.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-json_pure
+ruby193-rubygem-json_pure:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-json_pure.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-json_pure-1.7.3-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-nokogiri
+ruby193-rubygem-nokogiri:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-nokogiri.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-nokogiri-1.5.2-4.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-poltergeist
+ruby193-rubygem-poltergeist:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-poltergeist.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-poltergeist-1.2.0-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-rake-compiler
+ruby193-rubygem-rake-compiler:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-rake-compiler.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-rake-compiler-0.8.3-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-rubyforge
+ruby193-rubygem-rubyforge:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-rubyforge.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-rubyforge-2.0.4-8.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-term-ansicolor
+ruby193-rubygem-term-ansicolor:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-term-ansicolor.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-term-ansicolor-1.0.7-2.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-tidy-ext
+ruby193-rubygem-tidy-ext:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-tidy-ext.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-tidy-ext-0.1.14-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-trollop
+ruby193-rubygem-trollop:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-trollop.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-trollop-1.16.2-3.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-xpath
+ruby193-rubygem-xpath:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-xpath.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-xpath-2.0.0-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-yajl-ruby
+ruby193-rubygem-yajl-ruby:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-yajl-ruby.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-yajl-ruby-1.1.0-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-yard
+ruby193-rubygem-yard:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-yard.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-yard-0.7.2-4.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-colorize
+ruby193-rubygem-colorize:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-colorize.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-colorize-0.5.8-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-konacha
+ruby193-rubygem-konacha:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-konacha.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-konacha-2.6.0-1.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
+
+.PHONY: ruby193-rubygem-minitest
+ruby193-rubygem-minitest:
+	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-minitest.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
+	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-minitest-3.5.0-3.el$(EPEL_VERSION).src.rpm
+	make EPEL_VERSION=$(EPEL_VERSION) createrepo
