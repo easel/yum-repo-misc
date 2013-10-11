@@ -1807,16 +1807,9 @@ ruby193-rubygem-sass-rails:
 .PHONY: ruby193-rubygem-sass-twitter-bootstrap
 ruby193-rubygem-sass-twitter-bootstrap:
 	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-sass-twitter-bootstrap.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
-<<<<<<< HEAD
-	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPM~/ruby193-rubygem-sass-twitter-bootstrap-2.0.1-1.el$(EPEL_VERSION).src.rpm
-	make EPEL_VERSION=$(EPEL_VERSION) createrepo
-
-=======
 	mock $(RUBY193_OPTIONS) --rebuild --resultdir=$(ROOT)/RPMS $(ROOT)/SRPMS/ruby193-rubygem-sass-twitter-bootstrap-2.0.1-1.el$(EPEL_VERSION).src.rpm
 	make EPEL_VERSION=$(EPEL_VERSION) createrepo
 
-
->>>>>>> openshift-origin
 .PHONY: ruby193-rubygem-sinatra
 ruby193-rubygem-sinatra:
 	mock $(RUBY193_OPTIONS) --buildsrpm --spec=$(ROOT)/SPECS/rubygem-sinatra.spec --sources $(ROOT)/SOURCES --resultdir=$(ROOT)/SRPMS
