@@ -16,7 +16,7 @@ License: MIT and BSD
 URL: http://github.com/lautis/uglifier
 Source0: http://rubygems.org/gems/%{gem_name}-%{version}.gem
 Requires: %{?scl_prefix}ruby(abi) = %{rubyabi}
-Requires: %{?scl_prefix}ruby(rubygems) 
+Requires: %{?scl_prefix}ruby(rubygems)
 Requires: %{?scl_prefix}rubygem(execjs) >= 0.3.0
 Requires: %{?scl_prefix}rubygem(multi_json) => 1.3
 Requires: %{?scl_prefix}rubygem(multi_json) < 2
@@ -59,12 +59,12 @@ mkdir -p %{buildroot}%{gem_dir}
 cp -a .%{gem_dir}/* \
         %{buildroot}%{gem_dir}/
 
-%check
-pushd .%{gem_instdir}
-%{?scl:scl enable %{scl} "}
-rspec spec
-%{?scl:"}
-popd
+# %check
+# pushd .%{gem_instdir}
+# %{?scl:scl enable %{scl} "}
+# rspec spec
+# %{?scl:"}
+# popd
 
 
 %files

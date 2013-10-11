@@ -104,9 +104,15 @@ node "default" {
     content => template("mysql55-x86_64.cfg.erb"),
   }
 
+
   file { "/etc/mock/node010-x86_64.cfg":
     path => "/etc/mock/node010-x86_64.cfg",
     content => template("node010-x86_64.cfg.erb"),
+  }
+
+  file { "/etc/mock/origin-x86_64.cfg":
+    path => "/etc/mock/origin-x86_64.cfg",
+    content => template("origin-x86_64.cfg.erb"),
   }
 
 

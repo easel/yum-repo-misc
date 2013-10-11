@@ -1,8 +1,12 @@
-config_opts['root'] = 'ruby193-x86_64'
+#
+# Builds Openshift Origin packages for RHEL6
+#
+
+config_opts['root'] = 'origin-x86_64'
 config_opts['target_arch'] = 'x86_64'
 config_opts['legal_host_arches'] = ('x86_64',)
-config_opts['chroot_setup_cmd'] = 'install scl-utils-build @buildsys-build ruby193-build'
 config_opts['dist'] = 'el6'  # only useful for --resultdir variable subst
+config_opts['chroot_setup_cmd'] = 'install scl-utils-build @buildsys-build rubygem-thor tito wget vim-enhanced ruby-devel rubygems-devel rubygem-parseconfig rubygem-yard rubygem-redcarpet'
 
 config_opts['yum.conf'] = """
 [main]
@@ -53,18 +57,18 @@ mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-debug-6&arch=x8
 failovermethod=priority
 enabled=0
 
-[scl_ruby193]
-name=Ruby 1.9.3 Dynamic Software Collection
-baseurl=http://people.redhat.com/bkabrda/ruby193-rhel-6/
+[epel-easel]
+name=Easel EPEL - 6 - x86_64
+baseurl=http://easel.github.com/yum-repo-misc/epel/6/x86_64/
 failovermethod=priority
 enabled=1
 gpgcheck=0
 
-[ruby193]
-name=ruby193
-enabled=0
-baseurl=file:///home/vagrant/ruby193/repo
-cost=0
-metadata_expire=0
+[epel-easel-noarch]
+name=Easel EPEL - 6 - noarch
+baseurl=http://easel.github.com/yum-repo-misc/epel/6/noarch/
+failovermethod=priority
+enabled=1
+gpgcheck=0
 
 """
